@@ -24,7 +24,7 @@ This is an umbrella repository that contains requirements, use cases, high level
   Out of scope
 
 ## High Level Flow
-![kalypso-high-level](./docs/images/kalypso-high-level.png)
+![kalypso-high-level](./docs/images/kalypso-highlevel.png)
 
 ## Primary Use Cases
 

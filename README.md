@@ -1,14 +1,48 @@
-# Project
+# Introduction
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+Kalypso provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps. 
 
-As the maintainer of this project, please make a few updates:
+This is an umbrella repository that contains requirements, use cases, high level architecture and design decisions. The overall solution is composable so that every single component is handled in [its own repository](#referenced-repositories).
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+## Motivation
+<!--  
+  - Item
+  - Word Doc
+  - Knowledge Sharing
+  Scheduling!!!
+-->
+
+
+## Roles
+
+### Platform Team
+
+### Application Team
+
+### Application Operators
+
+  Out of scope
+
+## High Level Flow
+![kalypso-high-level](./docs/images/kalypso-high-level.svg)
+
+## Primary Use Cases
+
+## Design Details
+![kalypso-detailed](./docs/images/kalypso-detailed.svg)
+
+## Referenced Repositories
+
+|Repository|Description|
+|--------|----------|
+|[Application Source]()|Contains a sample application source code including Docker files, manifest templates and CI/CD workflows|
+|[Application GitOps]()|Contains final sample application manifests to de be deployed to the deployment targets|
+|[Services Source]()|Contains high level manifest templates of sample dial-tone platform services and CI/CD workflows|
+|[Services GitOps]()|Contains final manifests of sample dial-tone platform services to be deployed across clusters fleet|
+|[Control Plane]()|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
+|[Platform GitOps]()|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
+|[Kalypso Scheduler]()|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|   
+|[Kalypso Observability Hub]()|Contains detailed design and source code of the deployment observability service|
 
 ## Contributing
 

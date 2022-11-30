@@ -24,12 +24,12 @@ This is an umbrella repository that contains requirements, use cases, high level
   Out of scope
 
 ## High Level Flow
-![kalypso-high-level](./docs/images/kalypso-high-level.svg)
+![kalypso-high-level](./docs/images/kalypso-high-level.png)
 
 ## Primary Use Cases
 
 ## Design Details
-![kalypso-detailed](./docs/images/kalypso-detailed.svg)
+![kalypso-detailed](./docs/images/kalypso-detailed.png)
 
 ## Referenced Repositories
 

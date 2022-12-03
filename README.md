@@ -29,11 +29,30 @@ Historically, most of such tools have been designed to federate applications acr
 
 ### Platform Team
 
+Platform team takes care of the cluster fleet that hosts applications produced by app teams. 
+
+*Key responsibilities*: 
+
+- Define staging environments (Dev, QA, UAT, Prod)
+- Define cluster types in the fleet (group of clusters sharing the same configurations) and their distribution across environments
+- Provision New clusters (CAPI/Crossplane/Bicep/Terraform/…)
+- Manage infrastructure configurations and platform services (e.g. RBAC, Istio, Service Accounts, Prometheus, Flux, etc.) across cluster types
+- Schedule applications on cluster types
+
 ### Application Team
+
+Application team is responsible for their core application logic and providing the Kubernetes manifests that define how to deploy that application and its dependencies. They are responsible for owning their CI pipeline that creates container images, Kubernetes manifests and any validation steps required prior to rollout (e.g., testing, linting). The application team may have limited knowledge of the clusters that they are deploying to, and primarily need to understand the success of their application rollout as defined by the success of the pipeline stages. The application team is not aware of the structure of the entire fleet, global configurations and what other teams do. 
+
+*Key responsibilities*: 
+
+- Run full SDLC of their applications: develop, build, deploy, test, promote, release, support, bugfix, etc. 
+- Maintain and contribute to source and manifests repositories of their applications
+- Define and configure application deployment targets
+- Communicate to Platform Team requesting desired infrastructure for successful SDLC
 
 ### Application Operators
 
-  Out of scope
+Application Operators work with the applications on the clusters on the edge. They are normally in charge of application instances working on a single or a small group of clusters. They may perform some local configurations for the specific clusters and applications instances. This role is out of scope of this project.
 
 ## High Level Flow
 ![kalypso-high-level](./docs/images/kalypso-highlevel.png)
@@ -42,6 +61,13 @@ Historically, most of such tools have been designed to federate applications acr
 
 ## Design Details
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)
+
+<!-->
+### Separation of Concerns
+
+Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment. Platform team 
+-->
+
 
 ## Referenced Repositories
 

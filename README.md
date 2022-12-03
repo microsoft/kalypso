@@ -1,12 +1,14 @@
 # Introduction
 
+[![PR Quality Check](https://github.com/microsoft/kalypso/actions/workflows/pr.yaml/badge.svg)](https://github.com/microsoft/kalypso/actions/workflows/pr.yaml)
+
 Kalypso provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps.
 
 This is an umbrella repository that contains requirements, use cases, high level architecture and design decisions. The overall solution is composable so that every single component is handled in [its own repository](#referenced-repositories).
 
 ## Motivation
 
-There is an organization developing cloud-native applications. Any application needs a compute to work on. For cloud native a compute is a K8s cluster. An organization may have a single cluster or, which is more common, there are multiple clusters. So they have to decide what applications should work on what clusters, or in other words schedule them. The result of this decision or scheduling is a model of their cluster fleet, the desired state of the world if you will. Having that in place, they need somehow to deliver applications to the assigned clusters so they will turn the desired state into the reality or in other words reconcile it.
+There is an organization developing cloud-native applications. Any application needs a compute to work on. For cloud native a compute is a K8s cluster. An organization may have a single cluster or, which is more common, there are multiple clusters. So they have to decide what applications should work on what clusters, or in other words, schedule them. The result of this decision or scheduling is a model of their cluster fleet, the desired state of the world if you will. Having that in place, they need somehow to deliver applications to the assigned clusters so they will turn the desired state into the reality or in other words reconcile it.
 
 Every single application goes through a certain software development lifecycle, that promotes it to the production environment. E.g. an application is built, deployed to Dev environment, tested and promoted to Stage environment, tested and finally delivered to production. So the application requires and targets different K8s resources to support its SDLC. Furthermore, the applications normally expects on the clusters some platform services like Prometheus and Fluentbit and infra configurations like networking policy.
 

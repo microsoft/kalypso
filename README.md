@@ -1,12 +1,12 @@
 # Introduction
 
-Kalypso provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps. 
+Kalypso provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps.
 
 This is an umbrella repository that contains requirements, use cases, high level architecture and design decisions. The overall solution is composable so that every single component is handled in [its own repository](#referenced-repositories).
 
 ## Motivation
 
-There is an organization developing cloud-native applications. Any application needs a compute to work on. For cloud native a compute is a K8s cluster. An organization may have a single cluster or, which is more common, there are multiple clusters. So they have to decide what applications should work on what clusters, or in other words schedule them. The result of this decision or scheduling is a model of their cluster fleet, the desired state of the world if you will. Having that in place, they need somehow to deliver applications to the assigned clusters so they will turn the desired state into the reality or in other words reconcile it. 
+There is an organization developing cloud-native applications. Any application needs a compute to work on. For cloud native a compute is a K8s cluster. An organization may have a single cluster or, which is more common, there are multiple clusters. So they have to decide what applications should work on what clusters, or in other words schedule them. The result of this decision or scheduling is a model of their cluster fleet, the desired state of the world if you will. Having that in place, they need somehow to deliver applications to the assigned clusters so they will turn the desired state into the reality or in other words reconcile it.
 
 Every single application goes through a certain software development lifecycle, that promotes it to the production environment. E.g. an application is built, deployed to Dev environment, tested and promoted to Stage environment, tested and finally delivered to production. So the application requires and targets different K8s resources to support its SDLC. Furthermore, the applications normally expects on the clusters some platform services like Prometheus and Fluentbit and infra configurations like networking policy.
 
@@ -21,7 +21,7 @@ The scenarios described above can be handled manually with a handful of scripts 
 
 ### Existing projects
 
-It's worth mentioning that there is a variety of existing projects targeting to address some of the described challenges. Most of them are built on the *Hub/Spoke* concept where there is a *Hub* cluster that controls workload placement across connected *Spoke* clusters. Examples of such tools are [Kubefed](https://github.com/kubernetes-sigs/kubefed), [Karmada](https://karmada.io/), [KubeVela](https://kubevela.io/), [OCM](https://open-cluster-management.io/), [Azure Kubernetes Fleet](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/overview), [Rancher Fleet](https://fleet.rancher.io) etc. By definition, solutions like that expect a connection between *Hub* and *Spoke* clusters, at least an occasional one. They commonly provide monolithic functionality meaning they implement both workload scheduling and reconciling to the spoke clusters, so that scheduling and reconciling are tightly coupled to each other. 
+It's worth mentioning that there is a variety of existing projects targeting to address some of the described challenges. Most of them are built on the *Hub/Spoke* concept where there is a *Hub* cluster that controls workload placement across connected *Spoke* clusters. Examples of such tools are [Kubefed](https://github.com/kubernetes-sigs/kubefed), [Karmada](https://karmada.io/), [KubeVela](https://kubevela.io/), [OCM](https://open-cluster-management.io/), [Azure Kubernetes Fleet](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/overview), [Rancher Fleet](https://fleet.rancher.io) etc. By definition, solutions like that expect a connection between *Hub* and *Spoke* clusters, at least an occasional one. They commonly provide monolithic functionality meaning they implement both workload scheduling and reconciling to the spoke clusters, so that scheduling and reconciling are tightly coupled to each other.
 
 Historically, most of such tools have been designed to federate applications across multiple clusters. They are supposed to provide scalability, availability and security capabilities for a single application instance by breaking through Kubernetes limit of 5k nodes and placing an application across multiple regions and security zones. A solution like that is a perfect fit for a group or a fleet of connected clusters of the same or similar type with simple workload placement, based on labels and cluster performance metrics. From the perspective of this project, a cluster fleet like that is considered as a single deployment target, as a cluster of clusters with its own mechanics to load and balance the underlying compute.
 
@@ -29,9 +29,9 @@ Historically, most of such tools have been designed to federate applications acr
 
 ### Platform Team
 
-Platform team takes care of the cluster fleet that hosts applications produced by app teams. 
+Platform team takes care of the cluster fleet that hosts applications produced by app teams.
 
-*Key responsibilities*: 
+*Key responsibilities*:
 
 - Define staging environments (Dev, QA, UAT, Prod)
 - Define cluster types in the fleet (group of clusters sharing the same configurations) and their distribution across environments
@@ -41,11 +41,11 @@ Platform team takes care of the cluster fleet that hosts applications produced b
 
 ### Application Team
 
-Application team is responsible for their core application logic and providing the Kubernetes manifests that define how to deploy that application and its dependencies. They are responsible for owning their CI pipeline that creates container images, Kubernetes manifests and any validation steps required prior to rollout (e.g., testing, linting). The application team may have limited knowledge of the clusters that they are deploying to, and primarily need to understand the success of their application rollout as defined by the success of the pipeline stages. The application team is not aware of the structure of the entire fleet, global configurations and what other teams do. 
+Application team is responsible for their core application logic and providing the Kubernetes manifests that define how to deploy that application and its dependencies. They are responsible for owning their CI pipeline that creates container images, Kubernetes manifests and any validation steps required prior to rollout (e.g., testing, linting). The application team may have limited knowledge of the clusters that they are deploying to, and primarily need to understand the success of their application rollout as defined by the success of the pipeline stages. The application team is not aware of the structure of the entire fleet, global configurations and what other teams do.
 
-*Key responsibilities*: 
+*Key responsibilities*:
 
-- Run full SDLC of their applications: develop, build, deploy, test, promote, release, support, bugfix, etc. 
+- Run full SDLC of their applications: develop, build, deploy, test, promote, release, support, bugfix, etc.
 - Maintain and contribute to source and manifests repositories of their applications
 - Define and configure application deployment targets
 - Communicate to Platform Team requesting desired infrastructure for successful SDLC
@@ -55,11 +55,13 @@ Application team is responsible for their core application logic and providing t
 Application Operators work with the applications on the clusters on the edge. They are normally in charge of application instances working on a single or a small group of clusters. They may perform some local configurations for the specific clusters and applications instances. This role is out of scope of this project.
 
 ## High Level Flow
+
 ![kalypso-high-level](./docs/images/kalypso-highlevel.png)
 
 ## Primary Use Cases
 
 ## Design Details
+
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)
 
 <!--
@@ -68,25 +70,24 @@ Application Operators work with the applications on the clusters on the edge. Th
 Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment. Platform team 
 -->
 
-
 ## Referenced Repositories
 
 |Repository|Description|
 |--------|----------|
-|[Application Source]()|Contains a sample application source code including Docker files, manifest templates and CI/CD workflows|
-|[Application GitOps]()|Contains final sample application manifests to de be deployed to the deployment targets|
-|[Services Source]()|Contains high level manifest templates of sample dial-tone platform services and CI/CD workflows|
-|[Services GitOps]()|Contains final manifests of sample dial-tone platform services to be deployed across clusters fleet|
-|[Control Plane]()|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
-|[Platform GitOps]()|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
-|[Kalypso Scheduler]()|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|   
-|[Kalypso Observability Hub]()|Contains detailed design and source code of the deployment observability service|
+|[Application Source](./docs/images/under-construction.png)|Contains a sample application source code including Docker files, manifest templates and CI/CD workflows|
+|[Application GitOps](./docs/images/under-construction.png)|Contains final sample application manifests to de be deployed to the deployment targets|
+|[Services Source](./docs/images/under-construction.png)|Contains high level manifest templates of sample dial-tone platform services and CI/CD workflows|
+|[Services GitOps](./docs/images/under-construction.png)|Contains final manifests of sample dial-tone platform services to be deployed across clusters fleet|
+|[Control Plane](./docs/images/under-construction.png)|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
+|[Platform GitOps](./docs/images/under-construction.png)|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
+|[Kalypso Scheduler](./docs/images/under-construction.png)|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|
+|[Kalypso Observability Hub](./docs/images/under-construction.png)|Contains detailed design and source code of the deployment observability service|
 
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -98,8 +99,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

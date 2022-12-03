@@ -1,0 +1,76 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://csefy19.visualstudio.com"
+    },
+    {
+      "pattern": "^https://dev.azure.com/csefy19"
+    },
+    {
+      "pattern": "^https://dev.azure.com/CSECodeHub"
+    },
+    {
+      "pattern": "^https://github.com/cse-labs"
+    },
+    {
+      "pattern": "^https://github.com/orgs/cse-labs"
+    },
+    {
+      "pattern": "^https://opensource.org/licenses"
+    },
+    {
+      "pattern": "^https://cse-labs.github.io"
+    },
+    {
+      "pattern": "^https://aka.ms/SolutionOps"
+    },
+    {
+      "pattern": "^https://aka.ms/solutionops/dataops-playbook"
+    },
+    {
+      "pattern": "^https://aka.ms/fusionops"
+    },
+    {
+      "pattern": "^https://aka.ms/fusionopsrepo"
+    },
+    {
+      "pattern": "^https://aka.ms/fusionopsbacklog"
+    },
+    {
+      "pattern": "^https://aka.ms/opensource"
+    },
+    {
+      "pattern": "^https://github.com/microsoft"
+    },
+    {
+      "pattern": "^https://github.com/Azure"
+    },
+    {
+      "pattern": "^https://linkedin.github.io"
+    },
+    {
+      "pattern": "^https://aka.ms/solutionops"
+    },
+    {
+      "pattern": "^http://localhost"
+    }
+  ],
+  "httpHeaders": [
+    {
+      "urls": [
+        "https://docs.github.com"
+      ],
+      "headers": {
+        "Accept-Encoding": "deflate, compress, gzip, br"
+      }
+    }
+  ],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [
+    200,
+    206
+  ]
+}

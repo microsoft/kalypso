@@ -1,0 +1,36 @@
+{
+    "$schema": "./node_modules/@cspell/cspell-types/cspell.schema.json",
+    "version": "0.2",
+    "language": "en-US",
+    "flagWords": [
+        "hte"
+    ],
+    "ignorePaths": [
+        ".git",
+        ".gitignore",
+        ".vscodeignore",
+        ".gitattributes",
+        "*.lock",
+        "*.log",
+        "cspell.json",
+        "package-lock.json"
+    ],
+    "ignoreWords": [],
+    "dictionaryDefinitions": [
+        {
+            "name": "cse",
+            "path": "cspell-cse.txt",
+            "addWords": false
+        }
+    ],
+    "dictionaries": [
+        "cse"
+    ],
+    "languageSettings": [
+        {
+            "languageId": "*",
+            "allowCompoundWords": false
+        }
+    ],
+    "useGitignore": true
+}

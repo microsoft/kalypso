@@ -1,0 +1,152 @@
+---
+# PR Quality Check workflow
+name: PR Quality Check
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  markdown-lint-check:
+    name: Markdown Lint Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout a Git repo
+        uses: actions/checkout@v3
+
+      - name: Run Markdown Lint
+        id: markdownlint
+        # Official Docker image of markdownlint-cli
+        # https://www.npmjs.com/package/markdownlint-cli
+        uses: docker://ghcr.io/igorshubovych/markdownlint-cli:latest
+        with:
+          entrypoint: /usr/local/bin/markdownlint
+          args: "--config .markdownlint.yaml --output markdown-report.txt **/*.md"
+
+      - name: Prepare GitHub Summary
+        if: ${{ always() && steps.markdownlint.conclusion == 'failure' }}
+        run: |
+          report=$(cat markdown-report.txt)
+          summary=$(
+              cat <<EOF
+          # Markdown Lint \`failure\`
+          \`\`\`
+          "${report}"
+          \`\`\`
+          EOF
+          )
+          echo "${summary}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Report to PR as comment
+        if: ${{ always() && steps.markdownlint.conclusion == 'failure' && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let fs = require('fs');
+            let reportContent = fs.readFileSync('markdown-report.txt');
+
+            const body = `# Markdown Lint \`failure\`
+            <details>
+            <summary>Details</summary>\n
+            \`\`\`
+            ` + reportContent + `
+            \`\`\`\n
+            </details>\n
+            Pusher: @${{ github.actor }}`;
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            })
+
+      - name: Archive report
+        if: ${{ always() && steps.markdownlint.conclusion == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: markdownlint report
+          path: markdown-report.txt
+
+  markdown-link-check:
+    name: Markdown Link Checker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Markdown Link Checker
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: '.markdownlinkcheck.json'
+          # Quiet mode only shows errors in output not successful links too
+          use-quiet-mode: 'yes'
+          # Specify yes to show detailed HTTP status for checked links.
+          use-verbose-mode: 'yes'
+
+  secrets-detection:
+    name: Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
+
+      - name: Run Gitleaks
+        id: gitleaks
+        uses: DariuszPorowski/github-action-gitleaks@v2
+        with:
+          report_format: sarif
+
+      - name: Upload SARIF report to Workflow Artifacts
+        uses: actions/upload-artifact@v3
+        if: always() && steps.gitleaks.outputs.exitcode != 0
+        with:
+          name: gitleaks
+          path: |
+            ${{ steps.gitleaks.outputs.report }}
+      
+      - name: Upload SARIF report to Code Scanning service
+        if: always() && steps.gitleaks.outputs.exitcode != 0
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.gitleaks.outputs.report }}
+          category: gitleaks
+
+  spell-check:
+    name: Code Spell Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout a Git repo
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: |
+          npm install -g cspell@latest
+
+      - name: Run CSpell
+        id: cspell
+        run: |
+          cspell "docs/*" > cspell-report.txt
+          cspell README.md >> cspell-report.txt
+
+      - name: Prepare CSpell Summary
+        if: ${{ always() && steps.cspell.conclusion == 'failure' }}
+        run: |
+          report=$(cat cspell-report.txt)
+          summary=$(
+              cat <<EOF
+          # CSpell \`failure\`
+          \`\`\`
+          "${report}"
+          \`\`\`
+          EOF
+          )
+          echo "${summary}" >> $GITHUB_STEP_SUMMARY

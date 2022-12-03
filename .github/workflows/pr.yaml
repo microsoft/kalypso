@@ -134,7 +134,7 @@ jobs:
       - name: Run CSpell
         id: cspell
         run: |
-          cspell "docs/*" > cspell-report.txt
+          cspell "docs/*.md" > cspell-report.txt
           cspell README.md >> cspell-report.txt
 
       - name: Prepare CSpell Summary

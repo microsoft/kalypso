@@ -68,5 +68,12 @@ preprocess
 gnzg
 westus
 Kusto
+Kalypso
+Fluentbit
+Kubefed
+Karmada
+CAPI
+Crossplane
+Istio
 
 

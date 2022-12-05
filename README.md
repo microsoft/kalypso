@@ -62,6 +62,18 @@ Application Operators work with the applications on the clusters on the edge. Th
 
 ## Primary Use Cases
 
+- [Platform team onboards a workload](./docs/use-cases/platform-team-onboards-workload.md)
+- [Platform team defines a cluster type](./docs/images/under-construction.png)
+- [Platform team provides a configuration value for a cluster type](./docs/images/under-construction.png)
+- [Platform team schedules an application on cluster types](./docs/images/under-construction.png)
+- [Application team defines application deployment targets](./docs/images/under-construction.png)
+- [Application team provides a configuration value for a deployment target](./docs/images/under-construction.png)
+- [Application team updates the application](./docs/images/under-construction.png)
+- [Platform team defines service deployment targets](./docs/images/under-construction.png)
+- [Platform team provides a configuration value for a service deployment target](./docs/images/under-construction.png)
+- [Platform team updates a platform service](./docs/images/under-construction.png)
+
+
 ## Design Details
 
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)

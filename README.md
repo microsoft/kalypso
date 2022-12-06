@@ -73,7 +73,6 @@ Application Operators work with the applications on the clusters on the edge. Th
 - [Platform team provides a configuration value for a service deployment target](./docs/images/under-construction.png)
 - [Platform team updates a platform service](./docs/images/under-construction.png)
 
-
 ## Design Details
 
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)

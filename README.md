@@ -91,8 +91,8 @@ Platform team has a very limited knowledge about the applications and therefore 
 |[Application GitOps](./docs/images/under-construction.png)|Contains final sample application manifests to de be deployed to the deployment targets|
 |[Services Source](./docs/images/under-construction.png)|Contains high level manifest templates of sample dial-tone platform services and CI/CD workflows|
 |[Services GitOps](./docs/images/under-construction.png)|Contains final manifests of sample dial-tone platform services to be deployed across clusters fleet|
-|[Control Plane](./docs/images/under-construction.png)|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
-|[Platform GitOps](./docs/images/under-construction.png)|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
+|[Control Plane](https://github.com/microsoft/kalypso-control-plane)|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
+|[Platform GitOps](https://github.com/microsoft/kalypso-gitops)|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
 |[Kalypso Scheduler](./docs/images/under-construction.png)|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|
 |[Kalypso Observability Hub](./docs/images/under-construction.png)|Contains detailed design and source code of the deployment observability service|
 

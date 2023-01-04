@@ -68,8 +68,7 @@ Platform team has a very limited knowledge about the applications and therefore 
 
 Platform Team defines and configures *Cluster Types* and assigns *Deployment Targets* in the *Control Plane*. This is the place where they model their Platform. It's like a source repository for the Application Team. It's important to say, that the platform team doesn't manually schedule *Deployment Targets* on *Cluster Types* one by one. Instead of that they define scheduling rules in the *Control Plane*. Those rules along with configuration values are processed by an automated process that saves the result to a *GitOps repo*. This repository contains folders for each *Cluster Type* with the information on what workloads should work on it and what configuration values should be applied. Clusters can grab that information from the corresponding folder with their preferred reconciler and apply the manifests.
 
-Clusters report their compliance state with *GitOps repo* to the *Deployment Observability Hub*. Platform and Application teams query this information to  analyze workload deployment across the clusters historically. It can be used in the dashboards, alerts and in the deployment pipelines to implement progressive rollout. 
-
+Clusters report their compliance state with *GitOps repo* to the *Deployment Observability Hub*. Platform and Application teams query this information to analyze workload deployment across the clusters historically. It can be used in the dashboards, alerts and in the deployment pipelines to implement progressive rollout. 
 
 ## Primary Use Cases
 
@@ -90,8 +89,6 @@ Clusters report their compliance state with *GitOps repo* to the *Deployment Obs
 
 <!--
 ### Separation of Concerns
-
-
 -->
 
 ## Referenced Repositories

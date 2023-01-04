@@ -66,17 +66,9 @@ Application Team runs SDLS of their applications and promotes changes across env
 
 Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assign (*schedule*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team.  
 
-Platform Team defines and configures *Cluster Types* as well as assigns *Deployment Targets* in the *Control Plane*. This is the place where they model their Platform. It's like a source repository for the Application Team. It's important to say, that the platform team doesn't manually schedule *Deployment Targets* on *Cluster Types* one by one. Instead of that they define scheduling rules in the *Control Plane*. Those rules along with configuration values are processed by an automated process that saves the result to a *GitOps repo*. This repo contains folders for each *Cluster Type* with the information on what workloads should work on it and what configuration values should be applied. Clusters can grab that information from the corresponding folder with their preferred reconciler and apply the manifests.
+Platform Team defines and configures *Cluster Types* and assigns *Deployment Targets* in the *Control Plane*. This is the place where they model their Platform. It's like a source repository for the Application Team. It's important to say, that the platform team doesn't manually schedule *Deployment Targets* on *Cluster Types* one by one. Instead of that they define scheduling rules in the *Control Plane*. Those rules along with configuration values are processed by an automated process that saves the result to a *GitOps repo*. This repository contains folders for each *Cluster Type* with the information on what workloads should work on it and what configuration values should be applied. Clusters can grab that information from the corresponding folder with their preferred reconciler and apply the manifests.
 
-Clusters report ...
-
-Platform Team and Application Team read for themselves and automated processes ...
-
-
-The variety of *Deployment Targets* and *Cluster Types* might be  
-
-determoned by combination of configurations WIth th
-
+Clusters report their compliance state with *GitOps repo* to the *Deployment Observability Hub*. Platform and Application teams query this information to  analyze workload deployment across the clusters historically. It can be used in the dashboards, alerts and in the deployment pipelines to implement progressive rollout. 
 
 
 ## Primary Use Cases

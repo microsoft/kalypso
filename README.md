@@ -87,6 +87,28 @@ Clusters report their compliance state with *GitOps repo* to the *Deployment Obs
 
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)
 
+### Control Plane 
+
+Platform Team *models* the fleet in the *Control Plane*. It's supposed to be human oriented, easy to understand, update, and review. Even though the entire fleet may consist of 100k clusters, the *Control Plane* doesn't contain that detailed information. It operates with the abstractions of *Cluster Types*, *Workloads*, *Scheduling Policy*, *Configs*, *Templates* and so on. See full list of abstractions in [Kalypso Control Plane](https://github.com/microsoft/kalypso-control-plane) repository.
+
+There are various visions of how the *Control Plane* can be implemented. Following the GitOps concepts it can be a Git repo, following the *classic* architecture it might me a database service with some API exposed.
+
+The main requirement to the *Control Plane* in this design is to provide a reliable and safe change/transaction processing functionality (OTLP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
+
+With that said, in this project the *Control Plane* is implemented as a Git repository. It gives:
+- all the benefits of GitOps
+- "out-of-the-box" tracking, PR/Review functionality provided by Git repositories such as GitHub
+- easy promotional flow implementation with GH Actions
+- no need to maintain a separate *Control Plane* service  
+
+- Promotion and Scheduling
+branches
+
+- Dial tone services
+- Cluster types and Reconcilers
+- Extensible Scheduler
+- Deployment Observability Hub
+
 <!--
 ### Separation of Concerns
 -->

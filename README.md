@@ -64,7 +64,7 @@ The diagram above describes interaction between the roles and the major componen
 
 Application Team runs SDLC of their applications and promotes changes across environments. Application Team doesn't operate with the notion of the cluster. They have no idea on which clusters their application will be deployed in each environments. Application Team operates with the concept of *Deployment Target*, which is just an abstraction within environment. Examples of deployment targets could be: *Integration* on Dev, *functional tests* and *performance tests* on QA, *early adopters* and *external users* on Prod and so on. Application Team defines deployment targets for each environment and they know how to configure their application and how to generate manifests for each deployment target. This process is owned by Application Team, it is automated and exists in the application repositories space. The outcome of the Application Team is generated manifests for each deployment target, stored in a git repository.
 
-Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assign (*schedule*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team.  
+Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assigns (*schedules*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team.  
 
 Platform Team defines and configures *Cluster Types* and assigns *Deployment Targets* in the *Control Plane*. This is the place where they model their Platform. It's like a source repository for the Application Team. It's important to say, that the platform team doesn't manually schedule *Deployment Targets* on *Cluster Types* one by one. Instead of that they define scheduling rules in the *Control Plane*. Those rules along with configuration values are processed by an automated process that saves the result to a *GitOps repo*. This repository contains folders for each *Cluster Type* with the information on what workloads should work on it and what configuration values should be applied. Clusters can grab that information from the corresponding folder with their preferred reconciler and apply the manifests.
 
@@ -89,7 +89,7 @@ Clusters report their compliance state with *GitOps repo* to the *Deployment Obs
 
 ### Control Plane 
 
-Platform Team *models* the fleet in the *Control Plane*. It's supposed to be human oriented, easy to understand, update, and review. Even though the entire fleet may consist of 100k clusters, the *Control Plane* doesn't contain that detailed information. It operates with the abstractions of *Cluster Types*, *Workloads*, *Scheduling Policy*, *Configs*, *Templates* and so on. See full list of abstractions in [Kalypso Control Plane](https://github.com/microsoft/kalypso-control-plane) repository.
+Platform Team models the fleet in the *Control Plane*. It's supposed to be human oriented, easy to understand, update, and review. Even though the entire fleet may consist of 100k clusters, the *Control Plane* doesn't contain that detailed information. It operates with the abstractions of *Cluster Types*, *Workloads*, *Scheduling Policy*, *Configs*, *Templates* and so on. See full list of abstractions in [Kalypso Control Plane](https://github.com/microsoft/kalypso-control-plane) repository.
 
 There are various visions of how the *Control Plane* can be implemented. Following the GitOps concepts it can be a Git repo, following the *classic* architecture it might me a database service with some API exposed.
 
@@ -101,8 +101,29 @@ With that said, in this project the *Control Plane* is implemented as a Git repo
 - easy promotional flow implementation with GH Actions
 - no need to maintain a separate *Control Plane* service  
 
-- Promotion and Scheduling
-branches
+### Promotion and Scheduling
+
+The *Control Plane* repository contains two types of data:
+- The data that is about to be promoted across environments such as a list of onboarded workloads and various templates.
+- Environment specific configurations such as included into environment *Cluster Types*, config values and secrets, scheduling policies.
+
+The data to be promoted lives in *main* branch while environment specific data is stored in the corresponding environment branch (e.g. dev, qa, prod). Transforming data from the *Control Plane* to the *GitOps repo* is a combination of the promotion and scheduling flows. The promotion flow moves the change across the environments horizontally and the scheduling flow does the scheduling and generates manifests vertically for each environment. 
+
+A commit to the *main* branch starts the promotion flow that triggers the scheduling/transforming flow for each environment one by one. The scheduling/transforming flow takes the base manifests from *main*, applies configs from a corresponding to this environment branch (Dev, QA,..Prod) and PRs the resulting manifests to the GitOps repo in the corresponding to the environment branch. Once the rollout on this environment is complete and successful, the promotion flow goes ahead and performs the same procedure on the next environment. On every environment the flow promotes the same commitid of the main branch, making sure that the content from “main” is getting to the next environment only after success on the previous environment. 
+
+[Image!!!]
+
+A commit to the environment branch (Dev, Qa, …Prod) in the *Control repo* will just start the scheduling/transforming flow for this environment. E.g. we have changed cosmo-db endpoint for QA, we just need to make updates to the QA branch of the GitOps repo, we don’t want to touch anything else. The scheduling will take the *main* content corresponding to the latest commitid promoted to this environment, apply configurations and PR the resulting manifests to the GitOps branch.
+
+The scheduling/transformation flow is a K8s operator [Kalypso Scheduler](https://github.com/microsoft/kalypso/blob/main/docs/images/under-construction.png) hosted on a *Control Plane* K8s cluster. It watches changes in the *Control Plane* environment branches, performs necessary scheduling, transformations, generates manifests and PR's them to the GitOps repository. 
+
+There are a few bullets to highlight here:
+- The promotion flow doesn’t generate anything. It’s just a vehicle to orchestrate the flow, approvals, gates, track state, perform post/pre-deployment activities.
+- The *Kalypso Scheduler* pulls the changes from the control plane repo with Flux. It knows exactly what has changed, and regenerates only related manifests. It doesn't rebuild the entire fleet. 
+- It gives advantages of both worlds (GH Actions and K8s):
+  - Powerful orchestrator
+  - We don’t re-boil the ocean while reacting on a change in the *Control Plane*. There is neither a bottleneck, nor a butterfly effect.
+
 
 - Dial tone services
 - Cluster types and Reconcilers

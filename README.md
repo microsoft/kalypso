@@ -107,7 +107,6 @@ Overall, the *Kalypso Control Plane* consists of the following components:
 - Cli tool to provision repositories and manipulate control plane abstractions
 - K8s cluster running *Kalypso Scheduler*  
 
-
 ### Promotion and Scheduling
 
 The *Control Plane* repository contains two types of data:

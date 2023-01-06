@@ -151,7 +151,7 @@ Kalypso scheduler operates with the [Control Plane abstractions](https://github.
 
 Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent such as Azure Arc Flux Configuration agent. Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. 
 
-<!-
+<!--
 - Add references to the repos!!!
 - Check the document for the lost thoughts!
 -->

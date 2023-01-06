@@ -136,9 +136,9 @@ In the *Platform GitOps repo* each workload assignment to a *ClusterType* is rep
 - Consolidated platform configs and secrets for this cluster type
 - Reconciler resources pointing to a *Workload GitOps repo* where the actual workload manifests live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc.
 
-### Dial tone services
+### Dial-tone services
 
-Dial tone services are workloads and therefore they live in there own source/GitOps git repository pairs, just like applications. It gives:
+Dial-tone services are workloads and therefore they live in their own source/GitOps git repository pairs, just like applications. It gives:
 
 - Clean separation of “what is running” (apps and services) from “where it is running” (platform). These two things have completely different lifecycles.
 - Clean orchestration and simple scheduler for the control plane. There is no workload manifest generation at all, only promotion, scheduling and configs.
@@ -153,7 +153,7 @@ Every single cluster type can use a different reconciler to deliver manifests fr
 Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-control-plane), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. It delegates everything beyond to an external scheduler. Out-of-the-box it comes with an adaptor to the [Open Cluster Management Placement](https://open-cluster-management.io/concepts/placement/#placementdecisions) which implements all the heavy lifting scheduling and can be [extended with the custom logic](https://open-cluster-management.io/scenarios/extend-multicluster-scheduling-capabilities/). See the details in the [Kalypso Scheduler](./docs/images/under-construction.png) repo.
 
 ### Deployment Observability Hub
-
+Dial
 Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent such as Azure Arc Flux Configuration agent. Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
 
 <!--

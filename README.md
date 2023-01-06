@@ -23,7 +23,7 @@ The scenarios described above can be handled manually with a handful of scripts 
 
 ### Existing projects
 
-It's worth mentioning that there is a variety of existing projects targeting to address some of the described challenges. Most of them are built on the *Hub/Spoke* concept where there is a *Hub* cluster that controls workload placement across connected *Spoke* clusters. Examples of such tools are [Kubefed](https://github.com/kubernetes-sigs/kubefed), [Karmada](https://karmada.io/), [KubeVela](https://kubevela.io/), [OCM](https://open-cluster-management.io/), [Azure Kubernetes Fleet](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/overview), [Rancher Fleet](https://fleet.rancher.io) etc. By definition, solutions like that expect a connection between *Hub* and *Spoke* clusters, at least an occasional one. They commonly provide monolithic functionality meaning they implement both workload scheduling and reconciling to the spoke clusters, so that scheduling and reconciling are tightly coupled to each other.
+It's worth mentioning that there is a variety of existing projects targeting to address some of the described challenges. Most of them are built on the *Hub/Spoke* concept where there is a *Hub* cluster that controls workload placement across connected *Spoke* clusters. Examples of such tools are [Kubefed](https://github.com/kubernetes-sigs/kubefed), [Karmada](https://karmada.io/), [KubeVela](https://kubevela.io/), [OCM](https://open-cluster-management.io/), [Azure Kubernetes Fleet](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/overview), [Rancher Fleet](https://fleet.rancher.io) etc. By definition, solutions like that expect a connection between *Hub* and *Spoke* clusters, at least an occasional one. They commonly provide a monolithic functionality, meaning they implement both workload scheduling and reconciling to the spoke clusters, so that scheduling and reconciling are tightly coupled to each other.
 
 Historically, most of such tools have been designed to federate applications across multiple clusters. They are supposed to provide scalability, availability and security capabilities for a single application instance by breaking through Kubernetes limit of 5k nodes and placing an application across multiple regions and security zones. A solution like that is a perfect fit for a group or a fleet of connected clusters of the same or similar type with simple workload placement, based on labels and cluster performance metrics. From the perspective of this project, a cluster fleet like that is considered as a single deployment target, as a cluster of clusters with its own mechanics to load and balance the underlying compute.
 
@@ -62,7 +62,7 @@ Application Operators work with the applications on the clusters on the edge. Th
 
 The diagram above describes interaction between the roles and the major components of the solution. The primary concept of the whole process is separation of concerns. There are workloads, such as applications and platform services, and there is a platform where these workloads are working on. Application team takes care of the workloads (*what*), while the platform team is focused on the platform (*where*).
 
-Application Team runs SDLC of their applications and promotes changes across environments. Application Team doesn't operate with the notion of the cluster. They have no idea on which clusters their application will be deployed in each environments. Application Team operates with the concept of *Deployment Target*, which is just an abstraction within environment. Examples of deployment targets could be: *Integration* on Dev, *functional tests* and *performance tests* on QA, *early adopters* and *external users* on Prod and so on. Application Team defines deployment targets for each environment and they know how to configure their application and how to generate manifests for each deployment target. This process is owned by Application Team, it is automated and exists in the application repositories space. The outcome of the Application Team is generated manifests for each deployment target, stored in a git repository.
+Application Team runs SDLC of their applications and promotes changes across environments. Application Team doesn't operate with the notion of the cluster. They have no idea on which clusters their application will be deployed in each environments. Application Team operates with the concept of *Deployment Target*, which is just an abstraction within an environment. Examples of deployment targets could be: *Integration* on Dev, *functional tests* and *performance tests* on QA, *early adopters* and *external users* on Prod and so on. Application Team defines deployment targets for each environment and they know how to configure their application and how to generate manifests for each deployment target. This process is owned by Application Team, it is automated and exists in the application repositories space. The outcome of the Application Team is generated manifests for each deployment target, stored in a git repository.
 
 Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assigns (*schedules*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team.  
 
@@ -91,14 +91,14 @@ Clusters report their compliance state with GitOps repositories to the *Deployme
 
 Platform Team models the fleet in the *Control Plane*. It's supposed to be human oriented, easy to understand, update, and review. Even though the entire fleet may consist of 100k clusters, the *Control Plane* doesn't contain that detailed information. It operates with the abstractions of *Cluster Types*, *Workloads*, *Scheduling Policy*, *Configs*, *Templates* and so on. See full list of abstractions in [Kalypso Control Plane](https://github.com/microsoft/kalypso-control-plane) repository.
 
-There are various visions of how the *Control Plane* can be implemented. Following the GitOps concepts it can be a Git repo, following the *classic* architecture it might me a database service with some API exposed.
+There are various visions of how the *Control Plane* may be implemented. Following the GitOps concepts it can be a Git repo, following the *classic* architecture it might me a database service with some API exposed.
 
 The main requirement to the *Control Plane* in this design is to provide a reliable and safe change/transaction processing functionality (OLTP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
 
 With that said, in this project the *Control Plane* is implemented as a Git repository. It gives:
 
 - all the benefits of GitOps
-- "out-of-the-box" tracking, PR/Review functionality provided by Git repositories such as GitHub
+- "out-of-the-box" tracking, PR/Review functionality, provided by Git repositories such as GitHub
 - easy promotional flow implementation with GH Actions
 - no need to maintain and expose a separate *Control Plane* service  
 
@@ -111,7 +111,7 @@ The *Control Plane* repository contains two types of data:
 
 The data to be promoted lives in *main* branch while environment specific data is stored in the corresponding environment branches (e.g. dev, qa, prod). Transforming data from the *Control Plane* to the *GitOps repo* is a combination of the promotion and scheduling flows. The promotion flow moves the change across the environments horizontally and the scheduling flow does the scheduling and generates manifests vertically for each environment.
 
-A commit to the *main* branch starts the promotion flow that triggers the scheduling/transforming flow for each environment one by one. The scheduling/transforming flow takes the base manifests from *main*, applies configs from a corresponding to this environment branch (Dev, QA,..Prod) and PRs the resulting manifests to the *Platform GitOps repo* in the corresponding to the environment branch. Once the rollout on this environment is complete and successful, the promotion flow goes ahead and performs the same procedure on the next environment. On every environment the flow promotes the same commitid of the main branch, making sure that the content from “main” is getting to the next environment only after success on the previous environment.
+A commit to the *main* branch starts the promotion flow that triggers the scheduling/transforming flow for each environment one by one. The scheduling/transforming flow takes the base manifests from *main*, applies configs from a corresponding to this environment branch (Dev, QA,..Prod) and PRs the resulting manifests to the *Platform GitOps repo* in the corresponding to the environment branch. Once the rollout on this environment is complete and successful, the promotion flow goes ahead and performs the same procedure on the next environment. On every environment the flow promotes the same commitid of the main branch, making sure that the content from *main* is getting to the next environment only after success on the previous environment.
 
 ![promotion-flow](./docs/images/promotion-flow.png)
 
@@ -125,7 +125,7 @@ There are a few bullets to highlight here:
 - The *Kalypso Scheduler* pulls the changes from the control plane repo with Flux. It knows exactly what has changed, and regenerates only related manifests. It doesn't rebuild the entire fleet.
 - It gives advantages of both worlds - GH Actions and K8s:
   - Powerful promotion flow orchestrator
-  - Precise event driven scheduling and transformation. We don’t re-boil the ocean while reacting on a change in the *Control Plane*. There is neither a bottleneck, nor a butterfly effect.
+  - Precise event driven scheduling and transformation. We don’t reboil the ocean while reacting on a change in the *Control Plane*. There is neither a bottleneck, nor a butterfly effect.
 
 ### Workload Namespace
 
@@ -133,7 +133,7 @@ In the *Platform GitOps repo* each workload assignment to a *ClusterType* is rep
 
 - A dedicated namespace for this workload on a cluster of this type
 - Platform policies restricting workload permissions
-- Consolidated platform configs and secrets for this cluster type
+- Consolidated platform config maps and secrets that the workload can use
 - Reconciler resources pointing to a *Workload GitOps repo* where the actual workload manifests live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc.
 
 ### Dial-tone services
@@ -146,7 +146,7 @@ Dial-tone services are workloads and therefore they live in their own source/Git
 
 ### Cluster types and Reconcilers
 
-Every single cluster type can use a different reconciler to deliver manifests from the *GitOps repos*, such as Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the*Cluster Types*managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same*Workload GitOps repository* containing the workload manifests.
+Every single cluster type can use a different reconciler to deliver manifests from the *GitOps repos*. Reconciler examples are Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler*, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the *Cluster Types* managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same *Workload GitOps repository* containing the workload manifests.
 
 ### Extensible Scheduler
 
@@ -154,11 +154,7 @@ Kalypso scheduler operates with the [Control Plane abstractions](https://github.
 
 ### Deployment Observability Hub
 
-Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent such as Azure Arc Flux Configuration agent. Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
-
-<!--
-- Check the document for the lost thoughts!
--->
+Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent (e.g. Arc Flux Configuration agent). Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. In the central storage the high level information gets correlated with the commit compliance data coming from the clusters. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
 
 ## Referenced Repositories
 

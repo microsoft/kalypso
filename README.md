@@ -95,12 +95,18 @@ There are various visions of how the *Control Plane* may be implemented. Followi
 
 The main requirement to the *Control Plane* in this design is to provide a reliable and safe change/transaction processing functionality (OLTP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
 
-With that said, in this project the *Control Plane* is implemented as a Git repository. It gives:
+With that said, in this project the *Control Plane* is implemented on top of a Git repository. It gives:
 
 - all the benefits of GitOps
 - "out-of-the-box" tracking, PR/Review functionality, provided by Git repositories such as GitHub
 - easy promotional flow implementation with GH Actions
 - no need to maintain and expose a separate *Control Plane* service  
+
+Overall, the *Kalypso Control Plane* consists of the following components:
+
+- GitHub repository along with a set of GH Actions workflows
+- Cli tool to provision repositories and manipulate control plane abstractions
+- K8s cluster running *Kalypso Scheduler*  
 
 ### Promotion and Scheduling
 

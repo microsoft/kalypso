@@ -87,7 +87,7 @@ Clusters report their compliance state with GitOps repositories to the *Deployme
 
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)
 
-### Control Plane 
+### Control Plane
 
 Platform Team models the fleet in the *Control Plane*. It's supposed to be human oriented, easy to understand, update, and review. Even though the entire fleet may consist of 100k clusters, the *Control Plane* doesn't contain that detailed information. It operates with the abstractions of *Cluster Types*, *Workloads*, *Scheduling Policy*, *Configs*, *Templates* and so on. See full list of abstractions in [Kalypso Control Plane](https://github.com/microsoft/kalypso-control-plane) repository.
 
@@ -96,6 +96,7 @@ There are various visions of how the *Control Plane* can be implemented. Followi
 The main requirement to the *Control Plane* in this design is to provide a reliable and safe change/transaction processing functionality (OLTP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
 
 With that said, in this project the *Control Plane* is implemented as a Git repository. It gives:
+
 - all the benefits of GitOps
 - "out-of-the-box" tracking, PR/Review functionality provided by Git repositories such as GitHub
 - easy promotional flow implementation with GH Actions
@@ -104,22 +105,24 @@ With that said, in this project the *Control Plane* is implemented as a Git repo
 ### Promotion and Scheduling
 
 The *Control Plane* repository contains two types of data:
+
 - The data that is about to be promoted across environments such as a list of onboarded workloads and various templates.
 - Environment specific configurations such as included into environment *Cluster Types*, config values and secrets, scheduling policies. This data is not promoted as it is specific for each environment.
 
-The data to be promoted lives in *main* branch while environment specific data is stored in the corresponding environment branches (e.g. dev, qa, prod). Transforming data from the *Control Plane* to the *GitOps repo* is a combination of the promotion and scheduling flows. The promotion flow moves the change across the environments horizontally and the scheduling flow does the scheduling and generates manifests vertically for each environment. 
+The data to be promoted lives in *main* branch while environment specific data is stored in the corresponding environment branches (e.g. dev, qa, prod). Transforming data from the *Control Plane* to the *GitOps repo* is a combination of the promotion and scheduling flows. The promotion flow moves the change across the environments horizontally and the scheduling flow does the scheduling and generates manifests vertically for each environment.
 
-A commit to the *main* branch starts the promotion flow that triggers the scheduling/transforming flow for each environment one by one. The scheduling/transforming flow takes the base manifests from *main*, applies configs from a corresponding to this environment branch (Dev, QA,..Prod) and PRs the resulting manifests to the *Platform GitOps repo* in the corresponding to the environment branch. Once the rollout on this environment is complete and successful, the promotion flow goes ahead and performs the same procedure on the next environment. On every environment the flow promotes the same commitid of the main branch, making sure that the content from “main” is getting to the next environment only after success on the previous environment. 
+A commit to the *main* branch starts the promotion flow that triggers the scheduling/transforming flow for each environment one by one. The scheduling/transforming flow takes the base manifests from *main*, applies configs from a corresponding to this environment branch (Dev, QA,..Prod) and PRs the resulting manifests to the *Platform GitOps repo* in the corresponding to the environment branch. Once the rollout on this environment is complete and successful, the promotion flow goes ahead and performs the same procedure on the next environment. On every environment the flow promotes the same commitid of the main branch, making sure that the content from “main” is getting to the next environment only after success on the previous environment.
 
 ![promotion-flow](./docs/images/promotion-flow.png)
 
 A commit to the environment branch (Dev, Qa, …Prod) in the *Control repo* will just start the scheduling/transforming flow for this environment. E.g. we have changed cosmo-db endpoint for QA, we just need to make updates to the QA branch of the GitOps repo, we don’t want to touch anything else. The scheduling will take the *main* content corresponding to the latest commitid promoted to this environment, apply configurations and PR the resulting manifests to the GitOps branch.
 
-The scheduling/transformation flow is a K8s operator [Kalypso Scheduler](https://github.com/microsoft/kalypso/blob/main/docs/images/under-construction.png) hosted on a *Control Plane* K8s cluster. It watches changes in the *Control Plane* environment branches, performs necessary scheduling, transformations, generates manifests and PR's them to the *Platform  GitOps repository*. 
+The scheduling/transformation flow is a K8s operator [Kalypso Scheduler](https://github.com/microsoft/kalypso/blob/main/docs/images/under-construction.png) hosted on a *Control Plane* K8s cluster. It watches changes in the *Control Plane* environment branches, performs necessary scheduling, transformations, generates manifests and PR's them to the *Platform  GitOps repository*.
 
 There are a few bullets to highlight here:
+
 - The promotion flow doesn’t generate anything. It’s just a vehicle to orchestrate the flow. It provides approvals, gates, state tracking. Performs post and pre-deployment activities.
-- The *Kalypso Scheduler* pulls the changes from the control plane repo with Flux. It knows exactly what has changed, and regenerates only related manifests. It doesn't rebuild the entire fleet. 
+- The *Kalypso Scheduler* pulls the changes from the control plane repo with Flux. It knows exactly what has changed, and regenerates only related manifests. It doesn't rebuild the entire fleet.
 - It gives advantages of both worlds - GH Actions and K8s:
   - Powerful promotion flow orchestrator
   - Precise event driven scheduling and transformation. We don’t re-boil the ocean while reacting on a change in the *Control Plane*. There is neither a bottleneck, nor a butterfly effect.
@@ -127,32 +130,33 @@ There are a few bullets to highlight here:
 ### Workload Namespace
 
 In the *Platform GitOps repo* each workload assignment to a *ClusterType* is represented by a folder containing:
+
 - A dedicated namespace for this workload on a cluster of this type
-- Platform policies restricting workload permissions 
+- Platform policies restricting workload permissions
 - Consolidated platform configs and secrets for this cluster type
-- Reconciler resources pointing to a *Workload GitOps repo* where the actual workload manifests live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. 
+- Reconciler resources pointing to a *Workload GitOps repo* where the actual workload manifests live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc.
 
 ### Dial tone services
 
 Dial tone services are workloads and therefore they live in there own source/GitOps git repository pairs, just like applications. It gives:
+
 - Clean separation of “what is running” (apps and services) from “where it is running” (platform). These two things have completely different lifecycles.
-- Clean orchestration and simple scheduler for the control plane. There is no workload manifest generation at all, only promotion, scheduling and configs. 
+- Clean orchestration and simple scheduler for the control plane. There is no workload manifest generation at all, only promotion, scheduling and configs.
 - Their maybe multiple control planes that can consume same dial tone services  
 
 ### Cluster types and Reconcilers
 
-Every single cluster type can use a different reconciler to deliver manifests from the *GitOps repos*, such as Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler*, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the *Cluster Types* managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same *Workload GitOps repository* containing the workload manifests.
+Every single cluster type can use a different reconciler to deliver manifests from the *GitOps repos*, such as Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the*Cluster Types*managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same*Workload GitOps repository* containing the workload manifests.
 
 ### Extensible Scheduler
 
-Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-control-plane), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. It delegates everything beyond to an external scheduler. Out-of-the-box it comes with an adaptor to the [Open Cluster Management Placement](https://open-cluster-management.io/concepts/placement/#placementdecisions) which implements all the heavy lifting scheduling and can be [extended with the custom logic](https://open-cluster-management.io/scenarios/extend-multicluster-scheduling-capabilities/).  
+Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-control-plane), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. It delegates everything beyond to an external scheduler. Out-of-the-box it comes with an adaptor to the [Open Cluster Management Placement](https://open-cluster-management.io/concepts/placement/#placementdecisions) which implements all the heavy lifting scheduling and can be [extended with the custom logic](https://open-cluster-management.io/scenarios/extend-multicluster-scheduling-capabilities/). See the details in the [Kalypso Scheduler](./docs/images/under-construction.png) repo.
 
 ### Deployment Observability Hub
 
-Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent such as Azure Arc Flux Configuration agent. Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. 
+Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent such as Azure Arc Flux Configuration agent. Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
 
 <!--
-- Add references to the repos!!!
 - Check the document for the lost thoughts!
 -->
 

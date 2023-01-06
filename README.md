@@ -103,6 +103,7 @@ With that said, in this project the *Control Plane* is implemented on top of a G
 - no need to maintain and expose a separate *Control Plane* service  
 
 Overall, the *Kalypso Control Plane* consists of the following components:
+
 - GitHub repository along with a set of GH Actions workflows
 - Cli tool to provision repositories and manipulate control plane abstractions
 - K8s cluster running *Kalypso Scheduler*  

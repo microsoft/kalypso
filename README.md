@@ -123,7 +123,7 @@ A commit to the *main* branch starts the promotion flow that triggers the schedu
 
 A commit to the environment branch (Dev, Qa, …Prod) in the *Control repo* will just start the scheduling/transforming flow for this environment. E.g. we have changed cosmo-db endpoint for QA, we just need to make updates to the QA branch of the GitOps repo, we don’t want to touch anything else. The scheduling will take the *main* content corresponding to the latest commitid promoted to this environment, apply configurations and PR the resulting manifests to the GitOps branch.
 
-The scheduling/transformation flow is a K8s operator [Kalypso Scheduler](https://github.com/microsoft/kalypso/blob/main/docs/images/under-construction.png) hosted on a *Control Plane* K8s cluster. It watches changes in the *Control Plane* environment branches, performs necessary scheduling, transformations, generates manifests and PR's them to the *Platform  GitOps repository*.
+The scheduling/transformation flow is a K8s operator [Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler) hosted on a *Control Plane* K8s cluster. It watches changes in the *Control Plane* environment branches, performs necessary scheduling, transformations, generates manifests and PR's them to the *Platform  GitOps repository*.
 
 There are a few bullets to highlight here:
 
@@ -156,7 +156,7 @@ Every single cluster type can use a different reconciler to deliver manifests fr
 
 ### Extensible Scheduler
 
-Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-control-plane), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. It delegates everything beyond to an external scheduler. Out-of-the-box it comes with an adaptor to the [Open Cluster Management Placement](https://open-cluster-management.io/concepts/placement/#placementdecisions) which implements all the heavy lifting scheduling and can be [extended with the custom logic](https://open-cluster-management.io/scenarios/extend-multicluster-scheduling-capabilities/). See the details in the [Kalypso Scheduler](./docs/images/under-construction.png) repo.
+Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-control-plane), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. It delegates everything beyond to an external scheduler. Out-of-the-box it comes with an adaptor to the [Open Cluster Management Placement](https://open-cluster-management.io/concepts/placement/#placementdecisions) which implements all the heavy lifting scheduling and can be [extended with the custom logic](https://open-cluster-management.io/scenarios/extend-multicluster-scheduling-capabilities/). See the details in the [Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler) repo.
 
 ### Deployment Observability Hub
 
@@ -172,7 +172,7 @@ Deployment Observability Hub is implemented as a central storage which is easy t
 |[Services GitOps](./docs/images/under-construction.png)|Contains final manifests of sample dial-tone platform services to be deployed across clusters fleet|
 |[Control Plane](https://github.com/microsoft/kalypso-control-plane)|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
 |[Platform GitOps](https://github.com/microsoft/kalypso-gitops)|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
-|[Kalypso Scheduler](./docs/images/under-construction.png)|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|
+|[Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler)|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|
 |[Kalypso Observability Hub](./docs/images/under-construction.png)|Contains detailed design and source code of the deployment observability service|
 
 ## Contributing

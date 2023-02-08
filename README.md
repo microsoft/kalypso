@@ -77,11 +77,6 @@ Application Operators work with the applications on the clusters on the edge. Th
 
 ![kalypso-detailed](./docs/images/kalypso-detailed.png)
 
-<!--
-### Separation of Concerns
-
-Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment. Platform team 
--->
 
 ## Referenced Repositories
 

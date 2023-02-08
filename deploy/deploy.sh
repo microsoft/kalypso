@@ -224,6 +224,7 @@ echo "Depoyment is complete!"
 
 # TODO:
 #   - update argocd template in the control plane
+#   - usage
 #   - performance test 
 #   - promotion flows in control Plane
 #   - promotion flows in app

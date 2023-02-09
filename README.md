@@ -83,7 +83,7 @@ Application Operators work with the applications on the clusters on the edge. Th
 |Repository|Description|
 |--------|----------|
 |[Application Source](./docs/images/under-construction.png)|Contains a sample application source code including Docker files, manifest templates and CI/CD workflows|
-|[Application GitOps](./docs/images/under-construction.png)|Contains final sample application manifests to de be deployed to the deployment targets|
+|[Application GitOps](./docs/images/under-construction.png)|Contains final sample application manifests to be deployed to the deployment targets|
 |[Services Source](./docs/images/under-construction.png)|Contains high level manifest templates of sample dial-tone platform services and CI/CD workflows|
 |[Services GitOps](./docs/images/under-construction.png)|Contains final manifests of sample dial-tone platform services to be deployed across clusters fleet|
 |[Control Plane](./docs/images/under-construction.png)|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|

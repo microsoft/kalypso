@@ -33,12 +33,60 @@ In order to successfully deploy the sample, you need the following:
 To deploy the sample run the following script:
 
 ```azurecli-interactive
-
+mkdir kalypso && cd kalypso
+curl -fsSL -o deploy.sh https://raw.githubusercontent.com/microsoft/kalypso/main/deploy/deploy.sh
+chmod 700 deploy.sh
+./deploy.sh -c -p <preix. e.g. kalypso> -o <github org. e.g. eedorenko> -t <github token> -l <azure-location. e.g. westus2> 
 ```
+
+Since AKS clusters provisioning is not the fastest process in the world, the script will really take it time. Once it's done, it will report the execution result in an output like this:
+
+```azurecli-interactive
+Depoyment is complete!
+---------------------------------
+Created repositories:
+  - https://github.com/eedorenko/kalypso-control-plane
+  - https://github.com/eedorenko/kalypso-gitops
+  - https://github.com/eedorenko/kalypso-app-src
+  - https://github.com/eedorenko/kalypso-app-gitops
+---------------------------------
+Created AKS clusters in kalypso-rg resource group:
+  - control-plane
+  - drone (Azure Arc Flux based workload cluster)
+  - large (ArgoCD based workload cluster)
+---------------------------------  
+```
+
+> [!NOTE]
+> If something goes wrong with the deployment, you can always delete created resources with the following command:
+> ```azurecli-interactive
+> ./deploy.sh -d -p <preix. e.g. kalypso> -o <github org. e.g. eedorenko> -t <github token> -l <azure-location. e.g. westus2> 
+> ```
 
 ## Sample overview
 
-What we have deployed ...
+First of all, let's explore what we have deployed. The deployment script created an infrastructure shown on the following diagram:
+
+![diagram]
+
+There are a few `Platform Team` repositories:
+
+- [Control Plane](https://github.com/microsoft/kalypso-control-plane) - Contains a platform model defined with high level abstractions, such as environments, cluster types, applications and services, mapping rules and configurations, promotion workflows.
+- [Platform GitOps](https://github.com/microsoft/kalypso-gitops) - Contains final manifests representing the topology of the fleet - what cluster types are available in each environment, what workloads are scheduled on them and what platform configuration values are set.
+- [Services Source](https://github.com/microsoft/kalypso-svc-src) - Contains high level manifest templates of sample dial-tone platform services.
+- [Services GitOps](https://github.com/microsoft/kalypso-svc-gitops) - Contains final manifests of sample dial-tone platform services to be deployed across the clusters.
+
+And a couple of the `Application Dev Team` repositories:
+
+- [Application Source](https://github.com/microsoft/kalypso-app-src) - Contains a sample application source code including Docker files, manifest templates and CI/CD workflows.
+- [Application GitOps](https://github.com/microsoft/kalypso-app-gitops) - Contains final sample application manifests to be deployed to the deployment targets.
+
+The script created three AKS clusters:
+
+- `control-plane` - This cluster doesn't run any workloads. It's a management cluster. It hosts [Kalypso Scheduler] operator that transforms high level abstractions from the [Control Plane](https://github.com/microsoft/kalypso-control-plane) repository to the raw Kubernetes manifests in the [Platform GitOps](https://github.com/microsoft/kalypso-gitops) repository.
+- `drone` - This is a sample workload cluster. It's Azure Arc enabled and it uses `Flux` to reconcile manifests from the [Platform GitOps](https://github.com/microsoft/kalypso-gitops) repository.
+- `large` - This is a sample workload cluster. It has `ArgoCD` installed which reconciles manifests from the [Platform GitOps](https://github.com/microsoft/kalypso-gitops) repository.
+
 
 <!-- - [Platform team onboards a workload](./docs/use-cases/platform-team-onboards-workload.md)
 - [Platform team defines a cluster type](./docs/images/under-construction.png)
@@ -53,6 +101,8 @@ What we have deployed ...
 
 
 ## Platform Team: Onboard a new application
+
+
 
 ### Define application scheduling policy on Dev
 

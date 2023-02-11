@@ -111,8 +111,25 @@ create_app_gitops_repo() {
   git clone $gh_prefix/$appgitops_repo_name gitops
   
   pushd gitops
-  init_gitops_branch dev
-  init_gitops_branch stage
+  git checkout -b dev
+  echo "dev" > Readme.md  
+  mkdir functional-test
+  echo "Manifests" > functional-test/Readme.md
+  mkdir performance-test
+  echo "Manifests" > performance-test/Readme.md
+  git add .
+  git commit -m "dev"
+  git push origin dev
+
+  git checkout -b stage
+  echo "stage" > Readme.md  
+  rm -rf functional-test
+  rm -rf performance-test
+  mkdir uat-test
+  echo "Manifests" > uat-test/Readme.md
+  git add .
+  git commit -m "stage"
+  git push origin stage
   popd
   rm -rf gitops
 }
@@ -168,7 +185,7 @@ create_flux_cluster_type() {
     --interval 10s \
     --cluster-type managedClusters \
     --branch dev \
-    --kustomization name=cluster-config-dev prune=true path=$1
+    --kustomization name=cluster-config-dev prune=true sync_interval=10s path=$1
 
   az k8s-configuration flux create \
     --name cluster-config-stage \
@@ -180,7 +197,7 @@ create_flux_cluster_type() {
     --interval 10s \
     --cluster-type managedClusters \
     --branch stage \
-    --kustomization name=cluster-config-stage prune=true path=$1
+    --kustomization name=cluster-config-stage prune=true sync_interval=10s path=$1  
 
   kubectl create secret generic repo-secret -n flux-system \
         --from-literal=username=kalypso \
@@ -311,8 +328,7 @@ create() {
     echo "Created AKS clusters in "$rg_name" resource group:"
     echo "  - control-plane"
     echo "  - drone (Azure Arc Flux based workload cluster)"
-    echo "  - large (ArgoCD based workload cluster)" 
-    echo "           ArgoCD username: admin, password: $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
+    echo "  - large (ArgoCD based workload cluster)"     
     echo "---------------------------------"
 }
 
@@ -359,6 +375,7 @@ fi
 
 
 # TODO:
+#   - delete package with the source repo
 #   - prometheus repo
 #   - templates repos
    

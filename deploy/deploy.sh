@@ -41,6 +41,8 @@ controlplane_repo_name=$ORG/$PREFIX-control-plane
 gitops_repo_name=$ORG/$PREFIX-gitops
 appsrc_repo_name=$ORG/$PREFIX-app-src
 appgitops_repo_name=$ORG/$PREFIX-app-gitops
+svcsrc_repo_name=$ORG/$PREFIX-svc-src
+svcgitops_repo_name=$ORG/$PREFIX-svc-gitops
 rg_name=$PREFIX-rg
 
 export GH_TOKEN=$TOKEN
@@ -152,6 +154,28 @@ create_appsrc_repo() {
   rm -rf app-src
 }
 
+create_svc_gitops_repo() {
+  svcgitops_repo_template=microsoft/kalypso-svc-gitops
+  echo "Creating GitOps Repository "$svcgitops_repo_name
+  gh repo create $svcgitops_repo_name --public --include-all-branches  -p $svcgitops_repo_template
+}
+  
+
+create_svcsrc_repo() {
+  svcsrc_repo_template=microsoft/kalypso-svc-src
+  echo "Creating Service Source Repository "$svcsrc_repo_template
+  gh repo create $svcsrc_repo_name --public --include-all-branches  -p $svcsrc_repo_template
+  sleep 3
+  gh secret set MANIFESTS_TOKEN -b $TOKEN -R $svcsrc_repo_name
+  gh secret set MANIFESTS_REPO -b $gh_prefix/$svcgitops_repo_name -R $svcsrc_repo_name
+  
+  git clone $gh_prefix/$svcsrc_repo_name svc-src
+  
+  pushd svc-src
+  update_files_in_branch main
+  popd
+  rm -rf svc-src
+}
 
 create_AKS_cluster() {
     az aks create -g $rg_name -n $1 -l $LOCATION --node-count 1
@@ -300,6 +324,9 @@ create_gh_repositories() {
     create_control_plane_repo
     create_app_gitops_repo
     create_appsrc_repo
+    create_svc_gitops_repo
+    create_svcsrc_repo
+
 }
 
 delete_gh_repositories() {
@@ -309,6 +336,10 @@ delete_gh_repositories() {
     gh repo delete $gh_prefix/$gitops_repo_name --yes
     gh repo delete $gh_prefix/$appgitops_repo_name --yes
     gh repo delete $gh_prefix/$appsrc_repo_name --yes
+    gh repo delete $gh_prefix/$svcsrc_repo_name --yes
+    gh repo delete $gh_prefix/$svcgitops_repo_name --yes
+    
+    gh api -H "Accept: application/vnd.github+json" -X DELETE "/user/packages/container/$PREFIX-app-src%2Fhello-world"
 }
 
 create() {
@@ -316,7 +347,7 @@ create() {
     echo "---------------------------------"
     echo "Starting depoyment. Time for a coffee break. It will take a few minutes..."
     create_gh_repositories
-    createAzureResources
+    # createAzureResources
     echo "Depoyment is complete!"
     echo "---------------------------------"
     echo "Created repositories:"
@@ -324,6 +355,8 @@ create() {
     echo "  - "$gh_prefix/$gitops_repo_name
     echo "  - "$gh_prefix/$appsrc_repo_name
     echo "  - "$gh_prefix/$appgitops_repo_name
+    echo "  - "$gh_prefix/$svcsrc_repo_name
+    echo "  - "$gh_prefix/$svcgitops_repo_name    
     echo "---------------------------------"
     echo "Created AKS clusters in "$rg_name" resource group:"
     echo "  - control-plane"
@@ -335,7 +368,7 @@ create() {
 delete() {
     echo "---------------------------------"
     echo "Starting deletion. It will take a few minutes..."
-    deleteAzureResources
+    # deleteAzureResources
     delete_gh_repositories
     echo "Deletion is complete!"
     echo "---------------------------------"
@@ -344,6 +377,8 @@ delete() {
     echo "  - "$gh_prefix/$gitops_repo_name
     echo "  - "$gh_prefix/$appsrc_repo_name
     echo "  - "$gh_prefix/$appgitops_repo_name
+    echo "  - "$gh_prefix/$svcsrc_repo_name
+    echo "  - "$gh_prefix/$svcgitops_repo_name    
     echo "---------------------------------"
     echo "Deleted AKS clusters in "$rg_name" resource group:"
     echo "  - control-plane"
@@ -375,7 +410,6 @@ fi
 
 
 # TODO:
-#   - delete package with the source repo
-#   - prometheus repo
-#   - templates repos
+#   - templates repos -> make them public
+#   - test everything
    

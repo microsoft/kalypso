@@ -90,17 +90,27 @@ The script created the following AKS clusters:
 
 ### Explore Control Plane
 
-<!-- - [Platform team onboards a workload](./docs/use-cases/platform-team-onboards-workload.md)
-- [Platform team defines a cluster type](./docs/images/under-construction.png)
-- [Platform team provides a configuration value for a cluster type](./docs/images/under-construction.png)
-- [Platform team schedules an application on cluster types](./docs/images/under-construction.png)
-- [Application team defines application deployment targets](./docs/images/under-construction.png)
-- [Application team provides a configuration value for a deployment target](./docs/images/under-construction.png)
-- [Application team updates the application](./docs/images/under-construction.png)
-- [Platform team defines service deployment targets](./docs/images/under-construction.png)
-- [Platform team provides a configuration value for a service deployment target](./docs/images/under-construction.png)
-- [Platform team updates a platform service](./docs/images/under-construction.png) -->
+Let's have a look at what is preconfigured in our `control plane` repository. It contains three branches: `main`, `dev` and `stage`. The `dev` and `stage` branches represent `Dev` and `Stage` environments. They contain configurations that are specific for those environments. In the other hand, the `main` branch doesn't represent any specific environment, but it's content is rather common and used by all environments in the fleet. Any change to the `main` branch is a subject to be promoted across environments. For example, a new application or a new template can be promoted to the `Stage` environments only after successful testing on the `Dev` environment.
 
+The `main` branch:
+|Folder|Description|
+|----|-----------|
+|.github/workflows| GitHub workflows that implement the promotional flow|
+|.environments| Contains a list of environments with the pointers to the branches with the environment configurations|
+|templates| Contains manifests templates for various reconcilers (e.g. Flux and ArgoCD resources) as well as a template for the workload namespace| 
+|workloads| Contains a list of onboarded applications and services with the pointers to the corresponding repositories|  
+
+The `dev` and `stage` branches:
+|Item|Description|
+|----|-----------|
+|cluster-types| Contains a list of available cluster types in the environment, grouped in custom subfolders. Each cluster type is marked with a set of labels. It specifies a reconciler template that it uses to fetch the manifests and a template for the workload namespace. The subfolders also contain a number of config maps with the platform configuration values available on the cluster types.|
+|configs/dev-config.yaml| Contains a config maps with the platform configuration values applicable for all cluster types in the environment|
+|scheduling| Contains scheduling policies that map workload deployment targets to the cluster types in the environment |
+|base-repo.yaml| A pointer to the place and promoted commit in the `Control Plane` repository (`main`) from where the scheduler should take templates and workload registrations | 
+|gitops-repo.yaml| A pointer to the place in the `Platform GitOps` repository where the scheduler should PR generated manifests to |
+
+> [!NOTE]
+> The folder structure in the `Control Plane` repository doesn't matter whatsoever. This tutorial provides just a sample of how you can organize files in the repository, but feel free to do it in your own preferred way. The scheduler is interested in the files' content and not in where the files are placed.    
 
 ## Platform Team: Onboard a new application
 
@@ -238,9 +248,6 @@ git pull --no-edit
 git push
 ```
 
-> [!NOTE]
-> The folder structure in the control plane repository really doesn't matter. This tutorial provides just a sample of how you can organize files in the repository, but feel free to do it in your own preferred way. The scheduler is interested in the files' content and not in where the files are placed.    
-
 The first policy states that all deployment targets from the `kaizen-app-team` workspace, marked with labels `purpose: functional-test` and `edge: "true"` should be scheduled on all cluster types defined in the environment that are marked with label `restricted: "true"`. You can treat a workspace as a group of applications produced by an application team.
 
 The second policy states that all deployment targets from the `kaizen-app-team` workspace, marked with labels `purpose: performance-test` and `edge: "false"` should be scheduled on all cluster types defined in the environment that are marked with label `size: "large"`.
@@ -273,7 +280,7 @@ metadata:
   name: dev-kaizen-app-team-hello-world-app-functional-test
 ```
 
-`config.yaml` contains all platform configuration values available on any `drone` cluster that the application can use:
+`config.yaml` contains all platform configuration values available on any `drone` cluster that the application can use in `dev` environment:
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -469,6 +476,8 @@ git pull --no-edit
 git push
 ```
 
+The scheduler scans all config maps in the environment and collects values for each cluster type basing on the label matching. Then, it puts `platform-config` config map in every deployment target assignment folder in the `Platform GitOps` repository. The `platform-config` config map contains all platform configuration values, that the workload can use on this cluster type in this environment.  
+
 In a few seconds, a new PR to the `stage` branch in the `Platform GitOps` repository will appear:
 
 ![stage-db-url-update-pr](tut_images/stage-db-url-update-pr.png)
@@ -542,15 +551,26 @@ In a few seconds, the scheduler will submit a PR to the `Platform GitOps` reposi
 
 ![small-cluster-type-assignment](tut_images/small-cluster-type-assignment.png)
 
-## Platform Team: Analyze CLusters
+## Clean up resources
 
-### Look at Flux enabled cluster
+To delete the resources, created for this tutorial, run the following command:
 
-### Look at ArgoCD enabled cluster
+```azurecli-interactive
+# In kalypso folder
+./deploy.sh -d -p <preix. e.g. kalypso> -o <github org. e.g. eedorenko> -t <github token> -l <azure-location. e.g. westus2> 
+```
 
+## Next Steps
 
-# Next Steps: it's hard to include all, so play 
+In this tutorial you have gone through a few of the most common workload management scenarios in a multi-cluster Kubernetes environment. It's hard to put all the scenarios in a single tutorial. So, the suggestion is to play with this tutorial setup and see how you can implement your own use-cases, that are most common in your daily activities.
 
+To deeper understand the underlying concepts and the mechanics, refer to the following resources:
 
+<!--
+There will be a conceptual article "Workload Management in Multi-cluster environment with GitOps".
+For now, we are referring to https://github.com/microsoft/kalypso, which contains most of the future article's content.  
+-->
 
+> [!div class="nextstepaction"]
+> [Workload Management in Multi-cluster environment with GitOps](https://github.com/microsoft/kalypso)
 

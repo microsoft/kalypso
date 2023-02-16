@@ -187,16 +187,13 @@ create_control_plane() {
   echo "Creating control-plane AKS cluster..." 
   create_AKS_cluster "control-plane"
   kubectl create ns kalypso 
-  # helm repo add kalypso-scheduler https://raw.githubusercontent.com/microsoft/kalypso-scheduler/gh-pages/ --force-update 
+  helm repo add kalypso-scheduler https://raw.githubusercontent.com/microsoft/kalypso-scheduler/gh-pages/ --force-update 
   kubectl apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
   helm upgrade --devel -i kalypso kalypso-scheduler/kalypso-scheduler -n kalypso --set controlPlaneURL=$gh_prefix/$controlplane_repo_name \
     --set controlPlaneBranch=main --set ghRepoToken=$TOKEN
 }
 
 create_flux_cluster_type() {
-    # --https-user kalypso \
-    # --https-key $TOKEN \
-
   echo "Creating "$1" AKS cluster..." 
   create_AKS_cluster $1
   az k8s-configuration flux create \
@@ -234,7 +231,6 @@ create_argo_cluster_type() {
   create_AKS_cluster $1
   kubectl create ns argocd
   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  # echo "ArgoCD username: admin, password: $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
 
   kubectl create secret generic gitops -n argocd \
         --from-literal=username=kalypso \
@@ -368,7 +364,7 @@ create() {
 delete() {
     echo "---------------------------------"
     echo "Starting deletion. It will take a few minutes..."
-    # deleteAzureResources
+    deleteAzureResources
     delete_gh_repositories
     echo "Deletion is complete!"
     echo "---------------------------------"
@@ -408,8 +404,4 @@ else
   print_usage
 fi
 
-
-# TODO:
-#   - templates repos -> make them public
-#   - test everything
    

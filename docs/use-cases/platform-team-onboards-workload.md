@@ -2,7 +2,7 @@
 
 *Preconditions*:
 
-- Control Plane and GitOps repositories exist
+- Control Plane and Platform GitOps repositories exist
 - Workload GitOps repository exists
 
 *Postconditions*:

@@ -20,6 +20,7 @@ The scenarios described above can be handled manually with a handful of scripts 
 - Promotion of the fleet state through a chain of environments
 - Sophisticated, extensible and replaceable scheduler
 - Flexibility to use different reconcilers for different cluster types depending in their nature and connectivity
+- Abstracting Application Team away from the details of the clusters in the fleet
 
 ### Existing projects
 
@@ -62,7 +63,7 @@ Application Operators work with the applications on the clusters on the edge. Th
 
 The diagram above describes interaction between the roles and the major components of the solution. The primary concept of the whole process is separation of concerns. There are workloads, such as applications and platform services, and there is a platform where these workloads are working on. Application team takes care of the workloads (*what*), while the platform team is focused on the platform (*where*).
 
-Application Team runs SDLC of their applications and promotes changes across environments. Application Team doesn't operate with the notion of the cluster. They have no idea on which clusters their application will be deployed in each environments. Application Team operates with the concept of *Deployment Target*, which is just an abstraction within an environment. Examples of deployment targets could be: *Integration* on Dev, *functional tests* and *performance tests* on QA, *early adopters* and *external users* on Prod and so on. Application Team defines deployment targets for each environment and they know how to configure their application and how to generate manifests for each deployment target. This process is owned by Application Team, it is automated and exists in the application repositories space. The outcome of the Application Team is generated manifests for each deployment target, stored in a git repository.
+Application Team runs SDLC of their applications and promotes changes across environments. Application Team doesn't operate with the notion of the cluster. They have no idea on which clusters their application will be deployed in each environments. Application Team operates with the concept of *Deployment Target*, which is just an abstraction within an environment. Examples of deployment targets could be: *Integration* on Dev, *functional tests* and *performance tests* on QA, *early adopters* and *external users* on Prod and so on. Application Team defines deployment targets for each environment and they know how to configure their application and how to generate manifests for each deployment target. This process is owned by Application Team, it is automated and exists in the application repositories space. The outcome of the Application Team is generated manifests for each deployment target, stored in a manifests storage, such as a Git repository.
 
 Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assigns (*schedules*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team.  
 
@@ -73,15 +74,15 @@ Clusters report their compliance state with GitOps repositories to the *Deployme
 ## Primary Use Cases
 
 - [Platform team onboards a workload](./docs/use-cases/platform-team-onboards-workload.md)
-- [Platform team defines a cluster type](./docs/images/under-construction.png)
-- [Platform team provides a configuration value for a cluster type](./docs/images/under-construction.png)
-- [Platform team schedules an application on cluster types](./docs/images/under-construction.png)
-- [Application team defines application deployment targets](./docs/images/under-construction.png)
-- [Application team provides a configuration value for a deployment target](./docs/images/under-construction.png)
-- [Application team updates the application](./docs/images/under-construction.png)
-- [Platform team defines service deployment targets](./docs/images/under-construction.png)
-- [Platform team provides a configuration value for a service deployment target](./docs/images/under-construction.png)
-- [Platform team updates a platform service](./docs/images/under-construction.png)
+- [Platform team defines a cluster type](./docs/use-cases/platform-team-defines-cluster-type.md)
+- [Platform team provides configuration values for a cluster type](./docs/use-cases/platform-team-config-values.md)
+- [Platform team schedules an application on cluster types](./docs/use-cases/platform-team-scheduled-application.md)
+- [Application team defines application deployment targets](./docs/use-cases/application-team-defines-deployment-targets.md)
+- [Application team provides a configuration value for a deployment target](./docs/use-cases/application-team-provides-configuration-value.md)
+- [Application team updates the application](./docs/use-cases/application-team-updates-application.md)
+- [Platform team defines service deployment targets](./docs/use-cases/platform-team-defines-deployment-targets.md)
+- [Platform team provides a configuration value for a service deployment target](./docs/use-cases/platform-team-provides-configuration-value.md)
+- [Platform team adds a platform service](./docs/use-cases/platform-team-adds-platform-service.md)
 
 ## Design Details
 
@@ -140,7 +141,7 @@ In the *Platform GitOps repo* each workload assignment to a *ClusterType* is rep
 - A dedicated namespace for this workload on a cluster of this type
 - Platform policies restricting workload permissions
 - Consolidated platform config maps and secrets that the workload can use
-- Reconciler resources pointing to a *Workload GitOps repo* where the actual workload manifests live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc.
+- Reconciler resources pointing to a *Workload Manifests Storage* where the actual workload manifests or Helm charts live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc.
 
 ### Dial-tone services
 
@@ -152,7 +153,7 @@ Dial-tone services are workloads and therefore they live in their own source/Git
 
 ### Cluster types and Reconcilers
 
-Every single cluster type can use a different reconciler to deliver manifests from the *GitOps repos*. Reconciler examples are Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler*, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the *Cluster Types* managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same *Workload GitOps repository* containing the workload manifests.
+Every single cluster type can use a different reconciler to deliver manifests from the *Workload Manifests Storages*. Reconciler examples are Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler*, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the *Cluster Types* managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same *Workload Manifests Storage* containing the workload manifests.
 
 ### Extensible Scheduler
 
@@ -160,7 +161,7 @@ Kalypso scheduler operates with the [Control Plane abstractions](https://github.
 
 ### Deployment Observability Hub
 
-Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent (e.g. Arc Flux Configuration agent). Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *GitOps repos*. In the central storage the high level information gets correlated with the commit compliance data coming from the clusters. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
+Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent (e.g. Arc Flux Configuration agent). Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the *Workload Manifests Storages*. In the central storage the high level information gets correlated with the commit compliance data coming from the clusters. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
 
 ## Referenced Repositories
 

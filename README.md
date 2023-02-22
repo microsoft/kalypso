@@ -19,7 +19,7 @@ The scenarios described above can be handled manually with a handful of scripts 
 - Separation of concerns on scheduling and reconciling
 - Promotion of the fleet state through a chain of environments
 - Sophisticated, extensible and replaceable scheduler
-- Flexibility to use different reconcilers for different cluster types depending in their nature and connectivity
+- Flexibility to use different reconcilers for different cluster types depending on their nature and connectivity
 - Abstracting Application Team away from the details of the clusters in the fleet
 
 ### Existing projects

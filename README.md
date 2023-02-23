@@ -94,7 +94,7 @@ Platform Team models the fleet in the *Control Plane*. It's supposed to be human
 
 There are various visions of how the *Control Plane* storage may be implemented. Following the GitOps concepts, it can be a Git repo, following the *classic* architecture it might me a database service with some API exposed.
 
-The main requirement to the *Control Plane* in this design is to provide a reliable and safe change/transaction processing functionality (OLTP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
+The main requirement to the *Control Plane* storage in this design is to provide a reliable and safe change/transaction processing functionality (OLTP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
 
 With that said, in this project the *Control Plane* storage is implemented on top of a Git repository. It gives:
 

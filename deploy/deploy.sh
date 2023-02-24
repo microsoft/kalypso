@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
 while getopts cdl:o:p:t: flag

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
 while getopts cdl:o:p:t: flag
@@ -14,17 +15,41 @@ do
 done
 
 print_usage() {
-    echo "\nUsage: ./deploy.sh -<ACTION> -p <preix> -o <github org> -t <github token> -l <azure-location>"
-    echo "ACTION: -c for create, -d for delete  \n"
-    echo "Examples: ./deploy.sh -c -p kalypso -o eedorenko -t ghp_19LPYNhx4Whcn6l3jzfyBIbE2Es0Kn -l westus2 \n"                                                              
+    printf "Usage: ./deploy.sh -<ACTION> -p <preix> -o <github org> -t <github token> -l <azure-location> \n"
+    printf "ACTION: -c for create, -d for delete  \n"
+    printf "\nExamples: ./deploy.sh -c -p kalypso -o eedorenko -t ghp_19LPYNhx4Whcn6l3jzfyBIbE2Es0Kn -l westus2 \n"                                                              
     exit 1
 }
 
+check_gh_username() {
+  ghusername=$(git config --get user.name) || true
+  ghuseremail=$(git config --get user.email) || true
+  
+  if [ -z "$ghusername" ] || [ -z "$ghuseremail" ];
+  then
+    echo "Please configure your git username and email before running this script"
+    echo "git config --global user.email \"you@example.com\""
+    echo "git config --global user.name \"Your Name\""
+    exit 1
+  fi
+}
+
+check_az_sub() {
+  subid=$(az account list --query "[?isDefault].id" -o tsv)
+  if [ -z "$subid" ]
+  then
+    echo "Please login to Azure before running this script"
+    echo "az login"
+    exit 1
+  fi
+} 
+
 check_prerequisites() {  
-  gh
-  helm
-  kubectl
-  az
+  type -p gh >/dev/null
+  type -p helm >/dev/null
+  type -p kubectl >/dev/null
+  type -p az >/dev/null
+  type -p jq >/dev/null
 }
 
 print_prerequisites() {
@@ -33,7 +58,15 @@ print_prerequisites() {
   echo " - helm"
   echo " - kubectl"
   echo " - az"
+  echo " - jq"
   exit 1
+}
+
+authenticate_gh() {
+  echo "$TOKEN" > .githubtoken
+  gh auth login --with-token < .githubtoken  
+  rm .githubtoken
+  gh auth setup-git
 }
 
 gh_prefix="https://github.com"
@@ -45,8 +78,6 @@ svcsrc_repo_name=$ORG/$PREFIX-svc-src
 svcgitops_repo_name=$ORG/$PREFIX-svc-gitops
 rg_name=$PREFIX-rg
 
-export GH_TOKEN=$TOKEN
-
 
 update_files_in_branch() {
  git checkout $1
@@ -57,6 +88,7 @@ update_files_in_branch() {
 }
 
 create_control_plane_repo() {
+  rm -rf control-plane
   controlplane_repo_template=microsoft/kalypso-control-plane
   echo "Creating Controll Plane Repository "$controlplane_repo_name
   gh repo create $controlplane_repo_name --public --include-all-branches  -p $controlplane_repo_template
@@ -83,6 +115,7 @@ create_control_plane_repo() {
 }
 
 create_gitops_repo() {
+  rm -rf gitops
   gitops_repo_template=microsoft/kalypso-gitops
   echo "Creating GitOps Repository "$gitops_repo_name
   gh repo create $gitops_repo_name --public --include-all-branches  -p $gitops_repo_template
@@ -107,6 +140,7 @@ init_gitops_branch() {
 }
 
 create_app_gitops_repo() {
+  rm -rf gitops
   echo "Creating GitOps Repository "$appgitops_repo_name
   gh repo create $appgitops_repo_name --public
   sleep 3
@@ -137,6 +171,7 @@ create_app_gitops_repo() {
 }
 
 create_appsrc_repo() {
+  rm -rf app-src
   appsrc_repo_template=microsoft/kalypso-app-src
   echo "Creating Application Source Repository "$appsrc_repo_name
   gh repo create $appsrc_repo_name --public --include-all-branches  -p $appsrc_repo_template
@@ -162,6 +197,7 @@ create_svc_gitops_repo() {
   
 
 create_svcsrc_repo() {
+  rm -rf svc-src
   svcsrc_repo_template=microsoft/kalypso-svc-src
   echo "Creating Service Source Repository "$svcsrc_repo_template
   gh repo create $svcsrc_repo_name --public --include-all-branches  -p $svcsrc_repo_template
@@ -178,7 +214,7 @@ create_svcsrc_repo() {
 }
 
 create_AKS_cluster() {
-    az aks create -g $rg_name -n $1 -l $LOCATION --node-count 1
+    az aks create -g $rg_name -n $1 -l $LOCATION --node-count 1 --generate-ssh-keys
     az aks get-credentials -g $rg_name -n $1
     az aks show -g $rg_name -n $1 -o table
 }
@@ -196,6 +232,10 @@ create_control_plane() {
 create_flux_cluster_type() {
   echo "Creating "$1" AKS cluster..." 
   create_AKS_cluster $1
+
+  az extension add -n k8s-configuration
+  az extension add -n k8s-extension
+
   az k8s-configuration flux create \
     --name cluster-config-dev \
     --cluster-name $1 \
@@ -339,7 +379,6 @@ delete_gh_repositories() {
 }
 
 create() {
-  set -e
     echo "---------------------------------"
     echo "Starting depoyment. Time for a coffee break. It will take a few minutes..."
     create_gh_repositories
@@ -362,6 +401,7 @@ create() {
 }
 
 delete() {
+    set +e
     echo "---------------------------------"
     echo "Starting deletion. It will take a few minutes..."
     deleteAzureResources
@@ -388,10 +428,11 @@ then
  print_usage
 fi
 
+check_prerequisites || print_prerequisites
 
-check_prerequisites > /dev/null
-[ $? -eq 0 ]  || print_prerequisites
-
+check_gh_username
+check_az_sub
+authenticate_gh
 
 if [ $ACTION == "CREATE" ];
 then
@@ -403,5 +444,3 @@ else
   echo "Invalid action: "$ACTION
   print_usage
 fi
-
-   

@@ -349,7 +349,7 @@ createAzureResources() {
 
 deleteAzureResources() {
     echo "Deleting Azure resources..."    
-    az group delete -n $rg_name -y
+    az group delete -n $rg_name -y 2> /dev/null
 }
 
 
@@ -368,14 +368,14 @@ create_gh_repositories() {
 delete_gh_repositories() {
     echo "Deleting GitHub repositories..."
 
-    gh repo delete $gh_prefix/$controlplane_repo_name --yes
-    gh repo delete $gh_prefix/$gitops_repo_name --yes
-    gh repo delete $gh_prefix/$appgitops_repo_name --yes
-    gh repo delete $gh_prefix/$appsrc_repo_name --yes
-    gh repo delete $gh_prefix/$svcsrc_repo_name --yes
-    gh repo delete $gh_prefix/$svcgitops_repo_name --yes
+    gh repo delete $gh_prefix/$controlplane_repo_name --yes 2> /dev/null
+    gh repo delete $gh_prefix/$gitops_repo_name --yes 2> /dev/null
+    gh repo delete $gh_prefix/$appgitops_repo_name --yes 2> /dev/null
+    gh repo delete $gh_prefix/$appsrc_repo_name --yes 2> /dev/null
+    gh repo delete $gh_prefix/$svcsrc_repo_name --yes 2> /dev/null
+    gh repo delete $gh_prefix/$svcgitops_repo_name --yes 2> /dev/null
     
-    gh api -H "Accept: application/vnd.github+json" -X DELETE "/user/packages/container/$PREFIX-app-src%2Fhello-world"
+    gh api -H "Accept: application/vnd.github+json" -X DELETE "/user/packages/container/$PREFIX-app-src%2Fhello-world" > /dev/null 2>&1
 }
 
 create() {

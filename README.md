@@ -156,7 +156,7 @@ Every single cluster type can use a different reconciler to deliver manifests fr
 
 ### Extensible Scheduler
 
-Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. It delegates everything beyond to an external scheduler. Out-of-the-box it comes with an adaptor to the [Open Cluster Management Placement](https://open-cluster-management.io/concepts/placement/#placementdecisions) which implements all the heavy lifting scheduling and can be [extended with the custom logic](https://open-cluster-management.io/scenarios/extend-multicluster-scheduling-capabilities/).
+Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. 
 
 ### Deployment Observability Hub
 

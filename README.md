@@ -3,8 +3,9 @@
 [![PR Quality Check](https://github.com/microsoft/kalypso/actions/workflows/pr.yaml/badge.svg)](https://github.com/microsoft/kalypso/actions/workflows/pr.yaml)
 
 Kalypso is a collection of repositories, that back up the following Microsoft Learning resources:
- - [Concept: Workload management in a multi-cluster environment with GitOps](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-workload-management)
- - [How-to: Explore workload management in a multi-cluster environment with GitOps](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/workload-management)
+
+- [Concept: Workload management in a multi-cluster environment with GitOps](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-workload-management)
+- [How-to: Explore workload management in a multi-cluster environment with GitOps](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/workload-management)
 
 It provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps.
 
@@ -154,7 +155,7 @@ In the platform GitOps repository, each workload assignment to a cluster type is
 
 Platform services are workloads (such as Prometheus, NGINX, Fluentbit, and so on) maintained by the platform team. Just like any workloads, they have their source repositories and manifests storage. The source repositories may contain pointers to external Helm charts. CI/CD pipelines pull the charts with containers and perform necessary security scans before submitting them to the manifests storage, from where they're reconciled to the clusters.
 
-Considering platform services as regular workflows, gives the following advantages: 
+Considering platform services as regular workflows, gives the following advantages:
 
 - Clean separation of “what is running” (applications and services) from “where it is running” (platform). These two things have completely different lifecycles.
 - Clean and simple functionality of the control plane. There is no workload manifest generation at all, only promotion, scheduling and configurations.
@@ -166,7 +167,7 @@ Every cluster type can use a different reconciler (such as Flux, ArgoCD, Zarf, R
 
 ### Extensible Scheduler
 
-Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions), understands *Control Plane* and *Platform GitOps* repo structures and implements label based scheduling logic. 
+Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions), understands *Control Plane* and *Platform GitOps* repo structures and implements label based scheduling logic.
 
 ### Deployment Observability Hub
 

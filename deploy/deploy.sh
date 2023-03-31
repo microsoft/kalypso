@@ -225,7 +225,7 @@ create_control_plane() {
   kubectl create ns kalypso 
   helm repo add kalypso-scheduler https://raw.githubusercontent.com/microsoft/kalypso-scheduler/gh-pages/ --force-update 
   kubectl apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
-  helm upgrade --devel -i kalypso kalypso-scheduler/kalypso-scheduler -n kalypso --set controlPlaneURL=$gh_prefix/$controlplane_repo_name \
+  helm upgrade -i kalypso kalypso-scheduler/kalypso-scheduler -n kalypso --set controlPlaneURL=$gh_prefix/$controlplane_repo_name \
     --set controlPlaneBranch=main --set ghRepoToken=$TOKEN
 }
 

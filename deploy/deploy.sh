@@ -344,7 +344,8 @@ createAzureResources() {
     az group create -n $rg_name -l $LOCATION
     create_control_plane    
     create_flux_cluster_type drone
-    create_argo_cluster_type large
+    # create_argo_cluster_type large
+    create_flux_cluster_type large
 }
 
 deleteAzureResources() {
@@ -396,7 +397,8 @@ create() {
     echo "Created AKS clusters in "$rg_name" resource group:"
     echo "  - control-plane"
     echo "  - drone (Azure Arc Flux based workload cluster)"
-    echo "  - large (ArgoCD based workload cluster)"     
+    # echo "  - large (ArgoCD based workload cluster)"     
+    echo "  - large (Azure Arc Flux based workload cluster)"     
     echo "---------------------------------"
 }
 
@@ -419,7 +421,8 @@ delete() {
     echo "Deleted AKS clusters in "$rg_name" resource group:"
     echo "  - control-plane"
     echo "  - drone (Azure Arc Flux based workload cluster)"
-    echo "  - large (ArgoCD based workload cluster)" 
+    # echo "  - large (ArgoCD based workload cluster)" 
+    echo "  - large (Azure Arc Flux based workload cluster)"
     echo "---------------------------------"
 }
 

@@ -2,22 +2,29 @@
 
 [![PR Quality Check](https://github.com/microsoft/kalypso/actions/workflows/pr.yaml/badge.svg)](https://github.com/microsoft/kalypso/actions/workflows/pr.yaml)
 
-Kalypso provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps.
+Kalypso is a collection of repositories, that back up the following Microsoft Learning resources:
 
-This is an umbrella repository that contains requirements, use cases, high level architecture and design decisions. The overall solution is composable so that every single component is handled in [its own repository](#referenced-repositories).
+- [Concept: Workload management in a multi-cluster environment with GitOps](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-workload-management)
+- [How-to: Explore workload management in a multi-cluster environment with GitOps](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/workload-management)
+
+It provides a composable reference architecture of the workload management in a multi-cluster and multi-tenant environment with GitOps.
+
+This is an umbrella repository that contains requirements, use cases, architecture and code. The overall solution is composable so that every single component is handled in [its own repository](#referenced-repositories).
 
 ## Motivation
 
-There is an organization developing cloud-native applications. Any application needs a compute to work on. For cloud native a compute is a K8s cluster. An organization may have a single cluster or, which is more common, there are multiple clusters. So they have to decide what applications should work on what clusters, or in other words, schedule them. The result of this decision or scheduling is a model of their cluster fleet, the desired state of the world if you will. Having that in place, they need somehow to deliver applications to the assigned clusters so they will turn the desired state into the reality or in other words reconcile it.
+There is an organization developing cloud-native applications. Any application needs a compute resource to work on. In the cloud-native world, this compute resource is a Kubernetes cluster. An organization may have a single cluster or, more commonly, multiple clusters. So the organization must decide which applications should work on which clusters. In other words, they must schedule the applications across clusters. The result of this decision, or scheduling, is a model of the desired state of the clusters in their environment. Having that in place, they need somehow to deliver applications to the assigned clusters so that they can turn the desired state into the reality, or, in other words, reconcile it.
 
-Every single application goes through a certain software development lifecycle, that promotes it to the production environment. E.g. an application is built, deployed to Dev environment, tested and promoted to Stage environment, tested and finally delivered to production. So the application requires and targets different K8s resources to support its SDLC. Furthermore, the applications normally expect on the clusters some platform services like Prometheus and Fluentbit and infra configurations like networking policy.
+Every application goes through a software development lifecycle that promotes it to the production environment. For example, an application is built, deployed to Dev environment, tested and promoted to Stage environment, tested, and finally delivered to production. For a cloud-native application, the application requires and targets different Kubernetes cluster resources throughout its lifecycle. In addition, applications normally require clusters to provide some platform services, such as Prometheus and Fluentbit, and infrastructure configurations, such as networking policy.
 
-Depending on the application, the variety of the cluster types where the application is deployed in its lifecycle may be very diverse. The very same application with different configurations may be hosted on a managed cluster in the cloud, a connected cluster on prem, a fleet of clusters on semi-connected edge devices on factory lines or military drones, an air-gapped cluster on a starship. Besides that, clusters involved in the early lifecycle stages such as Dev and QA are normally managed by the developer, but the actual production clusters and reconciling to them may be managed by the organization's customers. In the latter case the developer may be only responsible for promoting and scheduling the application across different rings.  
+Depending on the application, there may be a great diversity of cluster types to which the application is deployed. The same application with different configurations could be hosted on a managed cluster in the cloud, on a connected cluster in an on-premises environment, on a group of clusters on semi-connected edge devices on factory lines or military drones, and on an air-gapped cluster on a starship. Another complexity is that clusters in early lifecycle stages such as Dev and QA are normally managed by the developer, while reconciliation to actual production clusters may be managed by the organization's customers. In the latter case, the developer may be responsible only for promoting and scheduling the application across different rings.  
 
-The scenarios described above can be handled manually with a handful of scripts and pipelines in a small organization operating a single application and a few clusters. In enterprise organizations this is a real challenge. They operate at scale, producing hundreds of applications targeting hundreds of cluster types that are backed up by thousands of physical clusters. It would be fair to say, that handling that manually with scripts is simply not feasible. It requires a scalable automated solution with the following capabilities:
+In a small organization with a single application and only a few operations, most of these processes can be handled manually with a handful of scripts and pipelines. But for enterprise organizations operating on a larger scale, it can be a real challenge. These organizations often produce hundreds of applications that target hundreds of cluster types, backed up by thousands of physical clusters. In these cases, handling such operations manually with scripts isn't feasible.
+
+The following capabilities are required to perform this type of workload management at scale in a multi-cluster environment:
 
 - Separation of concerns on scheduling and reconciling
-- Promotion of the fleet state through a chain of environments
+- Promotion of the multi-cluster state through a chain of environments
 - Sophisticated, extensible and replaceable scheduler
 - Flexibility to use different reconcilers for different cluster types depending on their nature and connectivity
 - Abstracting Application Team away from the details of the clusters in the fleet
@@ -32,26 +39,28 @@ Historically, most of such tools have been designed to federate applications acr
 
 ### Platform Team
 
-Platform team takes care of the cluster fleet that hosts applications produced by app teams.
+The platform team is responsible for managing the clusters that host applications produced by application teams.
 
 *Key responsibilities*:
 
 - Define staging environments (Dev, QA, UAT, Prod)
-- Define cluster types in the fleet (group of clusters sharing the same configurations) and their distribution across environments
+- Define cluster types (group of clusters sharing the same configurations) and their distribution across environments
 - Provision New clusters (CAPI/Crossplane/Bicep/Terraform/…)
 - Manage infrastructure configurations and platform services (e.g. RBAC, Istio, Service Accounts, Prometheus, Flux, etc.) across cluster types
-- Schedule applications on cluster types
+- Schedule applications and platform services on cluster types
 
 ### Application Team
 
-Application team is responsible for their core application logic and providing the Kubernetes manifests that define how to deploy that application and its dependencies. They are responsible for owning their CI pipeline that creates container images, Kubernetes manifests and any validation steps required prior to rollout (e.g., testing, linting). The application team may have limited knowledge of the clusters that they are deploying to, and primarily need to understand the success of their application rollout as defined by the success of the pipeline stages. The application team is not aware of the structure of the entire fleet, global configurations and what other teams do.
+The application team is responsible for the software development lifecycle (SDLC) of their applications. They provide Kubernetes manifests that describe how to deploy the application to different targets. They're responsible for owning CI/CD pipelines that create container images and Kubernetes manifests and promote deployment artifacts across environment stages.
+
+The application team is responsible for the software development lifecycle (SDLC) of their applications. They provide Kubernetes manifests that describe how to deploy the application to different targets. They're responsible for owning CI/CD pipelines that create container images and Kubernetes manifests and promote deployment artifacts across environment stages.
 
 *Key responsibilities*:
 
-- Run full SDLC of their applications: develop, build, deploy, test, promote, release, support, bugfix, etc.
-- Maintain and contribute to source and manifests repositories of their applications
-- Define and configure application deployment targets
-- Communicate to Platform Team requesting desired infrastructure for successful SDLC
+- Run full SDLC of their applications: Develop, build, deploy, test, promote, release, and support their applications.
+- Maintain and contribute to source and manifests repositories of their applications.
+- Define and configure application deployment targets.
+- Communicate to platform team, requesting desired compute resources for successful SDLC operations.
 
 ### Application Operators
 
@@ -90,30 +99,30 @@ Clusters report their compliance state with GitOps repositories to the *Deployme
 
 ### Control Plane
 
-Platform Team models the fleet in the *Control Plane*. It's supposed to be human oriented, easy to understand, update, and review. Even though the entire fleet may consist of 100k clusters, the *Control Plane* doesn't contain that detailed information. It operates with the abstractions of *Cluster Types*, *Workloads*, *Scheduling Policy*, *Configs*, *Templates* and so on. See full list of abstractions in [Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions) repository.
+The platform team models the multi-cluster environment in the control plane. It's designed to be human-oriented and easy to understand, update, and review. The control plane operates with abstractions such as Cluster Types, Environments, Workloads, Scheduling Policies, Configs and Templates. See full list of abstractions in [Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions) repository. These abstractions are handled by an automated process that assigns deployment targets and configuration values to the cluster types, then saves the result to the platform GitOps repository. Although there may be thousands of physical clusters, the platform repository operates at a higher level, grouping the clusters into cluster types.
 
-There are various visions of how the *Control Plane* storage may be implemented. Following the GitOps concepts, it can be a Git repo, following the *classic* architecture it might me a database service with some API exposed.
+There are various visions of how the control plane storage may be implemented. Following the GitOps concepts, it can be a Git repo, following the classic architecture it might me a database service with some API exposed.
 
-The main requirement to the *Control Plane* storage in this design is to provide a reliable and safe change/transaction processing functionality (OLTP). It's not supposed to be queried with a complex queries against a large amount of data (OLAP).
+The main requirement for the control plane storage is to provide a reliable and secure transaction processing functionality, rather than being hit with complex queries against a large amount of data. Various technologies may be used to store the control plane data.
 
-With that said, in this project the *Control Plane* storage is implemented on top of a Git repository. It gives:
+This architecture design suggests a Git repository with a set of pipelines to store and promote platform abstractions across environments. This design provides a number of benefits:
 
-- all the benefits of GitOps
-- "out-of-the-box" tracking, PR/Review functionality, provided by Git repositories such as GitHub
-- easy promotional flow implementation with GH Actions
-- no need to maintain and expose a separate *Control Plane* service  
+- All advantages of GitOps principles, such as version control, change approvals, automation, pull-based reconciliation.
+- Git repositories such as GitHub provide out of the box branching, security and PR review functionality.
+- Easy implementation of the promotional flows with GitHub Actions Workflows or similar orchestrators.
+- No need to maintain and expose a separate control plane service.  
 
 Overall, the *Kalypso Control Plane* consists of the following components:
 
 - GitHub repository along with a set of GH Actions workflows to store and promote abstractions
 - Control plane K8s cluster with [Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler) performing all the scheduling and transformations
 
-### Promotion and Scheduling
+### Promotion and scheduling
 
-The *Control Plane* repository contains two types of data:
+The control plane repository contains two types of data:
 
-- The data that is about to be promoted across environments such as a list of onboarded workloads and various templates.
-- Environment specific configurations such as included into environment *Cluster Types*, config values and secrets, scheduling policies. This data is not promoted as it is specific for each environment.
+- Data that gets promoted across environments, such as a list of onboarded workloads and various templates.
+- Environment-specific configurations, such as included into an environment cluster types, config values, and scheduling policies. This data isn't promoted, as it's specific to each environment.
 
 The data to be promoted lives in *main* branch while environment specific data is stored in the corresponding environment branches (e.g. dev, qa, prod). Transforming data from the *Control Plane* to the *GitOps repo* is a combination of the promotion and scheduling flows. The promotion flow moves the change across the environments horizontally and the scheduling flow does the scheduling and generates manifests vertically for each environment.
 
@@ -125,7 +134,7 @@ A commit to the environment branch (Dev, Qa, …Prod) in the *Control repo* will
 
 The scheduling/transformation flow is implemented with a K8s operator [Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler) hosted on a *Control Plane* K8s cluster. It watches changes in the *Control Plane* environment branches, performs necessary scheduling, transformations, generates manifests and PR's them to the *Platform  GitOps repository*.
 
-There are a few bullets to highlight here:
+There are a few points to highlight here:
 
 - The promotion flow doesn’t generate anything. It’s just a vehicle to orchestrate the flow. It provides approvals, gates, state tracking. Performs post and pre-deployment activities.
 - The *Kalypso Scheduler* pulls the changes from the control plane repo with Flux. It knows exactly what has changed, and regenerates only related manifests. It doesn't rebuild the entire fleet.
@@ -133,34 +142,36 @@ There are a few bullets to highlight here:
   - Powerful promotion flow orchestrator
   - Precise event driven scheduling and transformation. We don’t reboil the ocean while reacting on a change in the *Control Plane*. There is neither a bottleneck, nor a butterfly effect.
 
-### Workload Namespace
+### Workload assignment
 
-In the *Platform GitOps repo* each workload assignment to a *ClusterType* is represented by a folder containing:
+In the platform GitOps repository, each workload assignment to a cluster type is represented by a folder that contains the following items:
 
-- A dedicated namespace for this workload on a cluster of this type
-- Platform policies restricting workload permissions
-- Consolidated platform config maps and secrets that the workload can use
-- Reconciler resources pointing to a *Workload Manifests Storage* where the actual workload manifests or Helm charts live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc.
+- A dedicated namespace for this workload in this environment on a cluster of this type.
+- Platform policies restricting workload permissions.
+- Consolidated platform config maps and secrets that the workload can use.
+- Reconciler resources pointing to a *Workload Manifests Storage* where the actual workload manifests or Helm charts live. E.g. Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, nd so on.
 
-### Dial-tone services
+### Platform services
 
-Dial-tone services are workloads and therefore they live in their own source/GitOps git repository pairs, just like applications. It gives:
+Platform services are workloads (such as Prometheus, NGINX, Fluentbit, and so on) maintained by the platform team. Just like any workloads, they have their source repositories and manifests storage. The source repositories may contain pointers to external Helm charts. CI/CD pipelines pull the charts with containers and perform necessary security scans before submitting them to the manifests storage, from where they're reconciled to the clusters.
 
-- Clean separation of “what is running” (apps and services) from “where it is running” (platform). These two things have completely different lifecycles.
-- Clean orchestration and simple scheduler for the control plane. There is no workload manifest generation at all, only promotion, scheduling and configurations.
-- Their maybe multiple control planes that can consume same dial tone services  
+Considering platform services as regular workflows, gives the following advantages:
 
-### Cluster types and Reconcilers
+- Clean separation of “what is running” (applications and services) from “where it is running” (platform). These two things have completely different lifecycles.
+- Clean and simple functionality of the control plane. There is no workload manifest generation at all, only promotion, scheduling and configurations.
+- Their might be multiple control planes that can consume same platform services.  
 
-Every single cluster type can use a different reconciler to deliver manifests from the *Workload Manifests Storages*. Reconciler examples are Flux, ArgoCD, Zarf, Rancher Fleet, etc. *Cluster Type* definition refers to a *reconciler*, which is merely a named collection of manifest templates. The scheduler uses these templates to produce reconciler resources such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, etc. The very same workload may be scheduled to the *Cluster Types* managed by different reconcilers, for example Flux and ArgoCD. The scheduler will generate Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them will point to the same *Workload Manifests Storage* containing the workload manifests.
+### Cluster types and reconcilers
+
+Every cluster type can use a different reconciler (such as Flux, ArgoCD, Zarf, Rancher Fleet, and so on) to deliver manifests from the Workload Manifests Storages. Cluster type definition refers to a reconciler, which defines a collection of manifest templates. The scheduler uses these templates to produce reconciler resources, such as Flux GitRepository and Flux Kustomization, ArgoCD Application, Zarf descriptors, and so on. The same workload may be scheduled to the cluster types, managed by different reconcilers, for example Flux and ArgoCD. The scheduler generates Flux GitRepository and Flux Kustomization for one cluster and ArgoCD Application for another cluster, but both of them point to the same Workload Manifests Storage containing the workload manifests.
 
 ### Extensible Scheduler
 
-Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions), understands *Control Plane* and *Platform GitOps* repo structures and implements primitive label based scheduling logic. 
+Kalypso scheduler operates with the [Control Plane abstractions](https://github.com/microsoft/kalypso-scheduler#kalypso-control-plane-abstractions), understands *Control Plane* and *Platform GitOps* repo structures and implements label based scheduling logic.
 
 ### Deployment Observability Hub
 
-Deployment Observability Hub is implemented as a central storage which is easy to query with complex queries against a large amount of data. It contains deployment data with the historical information on the workload versions and their deployment state across clusters in the fleet. Clusters register themselves in the storage and update their compliance status with an agent (e.g. Arc Flux Configuration agent). Clusters operate at the level of GitOps commits only. High level information, such as application versions, environments, cluster types is transferred to the central storage from the GitOps repositories. In the central storage the high level information gets correlated with the commit compliance data coming from the clusters. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
+Deployment Observability Hub is a central storage that is easy to query with complex queries against a large amount of data. It contains deployment data with historical information on workload versions and their deployment state across clusters. Clusters register themselves in the storage and update their compliance status with the GitOps repositories. Clusters operate at the level of Git commits only. High-level information, such as application versions, environments, and cluster type data, is transferred to the central storage from the GitOps repositories. This high-level information gets correlated in the central storage with the commit compliance data sent from the clusters. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
 
 ## Referenced Repositories
 

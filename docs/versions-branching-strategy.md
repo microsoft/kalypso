@@ -12,7 +12,7 @@ The challenge is to organize properly source and manifests Git repositories to h
 
 The diagram below describes a common branching layout in the source Git repository to support both new feature development for the future release and bug fixes for the released versions. This approach aligns with the [source code branching strategy](https://docs.microsoft.com/azure/devops/repos/git/git-branching-guidance?view=azure-devops#why-not-use-tags-for-releases) used at Microsoft to [manage releases](https://docs.microsoft.com/en-us/azure/devops/repos/git/git-branching-guidance?view=azure-devops#manage-releases) of the Azure online services.
 
-![](./images/source-branches.png)
+![source-branches](./images/source-branches.png)
 
 There is a collaboration (Dev) branch “D” to which developers PR feature branches. At the end of each sprint the Dev branch is merged into Main. The Main branch serves as a major timeline, always containing a working and tested version from the last sprint. After each 4 development sprints a new version is released. The released code is sub-branched in a Release branch (some teams perform the releasing through a temporary “stabilizing” pre-release branch for the “polishing” activities). A release branch separates the released code and allows to issue periodic hot fixes without introducing the "new feature" code to the version where it's not supposed to be, so the version remains stable.
 
@@ -40,7 +40,7 @@ Release branches live as long as a corresponding version is supported. Tags on s
 
 Through the development lifecycle, the source code in Dev and Release branches is continuously integrated and delivered to a chain of environments (e.g. Dev->QA->Prod). Like the source code, the environments for each alive version are also separated to support a proper development lifecycle. So 1.0.x, 1.1.x and 1.2.x (current) versions have their own instances of Dev->QA->Prod (like Dev_1.0.x->QA_1.0.x->Prod_1.0.x, etc.). Every version has a CI workflow/pipeline that continuously builds the code and a CD workflow/pipeline that delivers the build result in a GitOps fashion:
 
-![](./images/manifests-branches.png)
+![manifests-branches](./images/manifests-branches.png)
 
 In GitOps methodology any environment is represented declaratively by manifests in a Git repository. This is a fundamental concept. So, every environment on the diagram above should have a place in the Git repository that reflects the environment. Continuous delivering in GitOps fashion is actually putting manifests to environment-specific places in the repository. These places are observed by a GitOps operator which applies the manifests to the environment performing the actual deployment. The common practice is to separate environments with branches and applications/microservices with folders. Having a separate branch (or repo) per environment addresses better security concerns, gives cleaner commit history and commit status, the PRs to different environments don’t interfere with each other. The most common ones are collected in the following table:
 
@@ -62,4 +62,5 @@ The CI/CD pipelines setup for different versions depends pretty much on the orch
 It is helpful to have in a CD pipeline/workflow a step that creates an annotated tag in a Manifest repo branch with the reference to the commit in the source repo. It gives more traceability, so that the change in the manifests is connected to the original source change.
 
 ## Release automation
+
 Releasing a new version includes performing a number of activities such as source code sub-branching and tagging, configuring manifests repos and branches, configuring CI/CD workflows/pipelines for the new version, issuing release notes, packaging and publishing Helm Charts, etc. It is beneficial to automate this process by the means of a Release workflow/pipeline. This pipeline can be triggered just manually by a release manager or it can start automatically once a new Release is created in a repository such as GitHub.

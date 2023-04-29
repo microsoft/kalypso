@@ -171,7 +171,7 @@ Kalypso scheduler operates with the [Control Plane abstractions](https://github.
 
 ### Deployment Observability Hub
 
-Deployment Observability Hub is a central storage that is easy to query with complex queries against a large amount of data. It contains deployment data with historical information on workload versions and their deployment state across clusters. Clusters register themselves in the storage and update their compliance status with the GitOps repositories. Clusters operate at the level of Git commits only. High-level information, such as application versions, environments, and cluster type data, is transferred to the central storage from the GitOps repositories. This high-level information gets correlated in the central storage with the commit compliance data sent from the clusters. See the details in the [Kalypso Observability Hub](./docs/images/under-construction.png) repo.
+Deployment Observability Hub is a central storage that is easy to query with complex queries against a large amount of data. It contains deployment data with historical information on workload versions and their deployment state across clusters. Clusters register themselves in the storage and update their compliance status with the GitOps repositories. Clusters operate at the level of Git commits only. High-level information, such as application versions, environments, and cluster type data, is transferred to the central storage from the GitOps repositories. This high-level information gets correlated in the central storage with the commit compliance data sent from the clusters. See the details in the [Kalypso Observability Hub](https://github.com/microsoft/kalypso-observability-hub) repo.
 
 ## Referenced Repositories
 
@@ -184,7 +184,7 @@ Deployment Observability Hub is a central storage that is easy to query with com
 |[Control Plane](https://github.com/microsoft/kalypso-control-plane)|Contains a platform model including environments, cluster types, applications and services, mapping rules and configurations, Promotion Flow workflows|
 |[Platform GitOps](https://github.com/microsoft/kalypso-gitops)|Contains final manifests representing the topology of the fleet - what cluster types are available, how they are distributed across environments and what is supposed to deployed where|
 |[Kalypso Scheduler](https://github.com/microsoft/kalypso-scheduler)|Contains detailed design and source code of the scheduler operator, responsible for scheduling applications and services on cluster types and uploading the result to the GitOps repo|
-|[Kalypso Observability Hub](./docs/images/under-construction.png)|Contains detailed design and source code of the deployment observability service|
+|[Kalypso Observability Hub](https://github.com/microsoft/kalypso-observability-hub)|Contains detailed design and source code of the deployment observability service|
 
 ## Contributing
 

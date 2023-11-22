@@ -64,9 +64,9 @@ The application team is responsible for the software development lifecycle (SDLC
 
 ### Application Operators
 
-Application (Line/Store/Host) Operators work with the applications on the clusters on the edge. They are normally in charge of application instances working on a single or a small group of clusters. They decide when to rollout and rollback a specific application instance on a specific cluster. 
+Application (Line/Store/Host) Operators work with the applications on the clusters on the edge. They are normally in charge of application instances working on a single or a small group of clusters. They decide when to rollout and rollback a specific application instance on a specific cluster.
 
-Application Operators act on the reconciling/deployment part of the story, on the other hand, Kalypso is focused on the scheduling part, being reconciler agnostic. Kalypso doesn't deploy. With that said, while Application Operators still need a tool to perform their actions effectively, this functionality is out of Kalypso's scope. 
+Application Operators act on the reconciling/deployment part of the story, on the other hand, Kalypso is focused on the scheduling part, being reconciler agnostic. Kalypso doesn't deploy. With that said, while Application Operators still need a tool to perform their actions effectively, this functionality is out of Kalypso's scope.
 
 ## High Level Flow
 
@@ -76,7 +76,7 @@ The diagram above describes interaction between the roles and the major componen
 
 Application Team runs SDLC of their applications and promotes changes across environments. Application Team doesn't operate with the notion of the cluster. They have no idea on which clusters their application will be deployed in each environments. Application Team operates with the concept of *Deployment Target*, which is just an abstraction within an environment. Examples of deployment targets could be: *Integration* on Dev, *functional tests* and *performance tests* on QA, *early adopters* and *external users* on Prod and so on. Application Team defines deployment targets for each environment and they know how to configure their application and how to generate manifests for each deployment target. This process is owned by Application Team, it is automated and exists in the application repositories space. The outcome of the Application Team is generated manifests for each deployment target, stored in a manifests storage, such as a Git repository, Helm Repository, OCI storage, etc.
 
-Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assigns (*schedules*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team. The key point is that Platform team doesn't configure applications, they configure environments for applications. Essentially, they provide environment variable values. They look at what variables are requested by a collection of applications for each *Cluster Type*, group of cluster types, region, etc. and provide those values in the control plane.     
+Platform team has a very limited knowledge about the applications and therefore is not involved in the application configuration and deployment process. Platform team is in charge of platform clusters, that are grouped in *Cluster Types*. They describe *Cluster Types* with configuration values, such as DNS names, endpoints of external services and so on. Platform team assigns (*schedules*) application deployment targets to various cluster types. With that in place, the application behavior will be determined by the combination of *Deployment Target* configuration values, provided by Application Team, and *Cluster Type* configuration values, provided by the Platform Team. The key point is that Platform team doesn't configure applications, they configure environments for applications. Essentially, they provide environment variable values. They look at what variables are requested by a collection of applications for each *Cluster Type*, group of cluster types, region, etc. and provide those values in the control plane.
 
 Platform Team defines and configures *Cluster Types* and assigns *Deployment Targets* in the *Control Plane*. This is the place where they model their Platform. It's like a source repository for the Application Team. It's important to say, that the platform team doesn't manually schedule *Deployment Targets* on *Cluster Types* one by one. Instead of that they define scheduling rules in the *Control Plane*. Those rules along with configuration values are processed by an automated process that saves the result to the *Platform GitOps repo*. This repository contains folders for each *Cluster Type* with the information on what workloads should work on it and what configuration values should be applied. Clusters can grab that information from the corresponding folder with their preferred reconciler and apply the manifests.
 
@@ -177,14 +177,13 @@ Deployment Observability Hub is a central storage that is easy to query with com
 
 ### UI
 
-Kalypso implements "Platform as Code" paradigm. Platform team defines the state of the platform with abstractions/resources and stores them as yaml files in a Git repository. There is a tool that takes this "code" and converts it into the platform. 
+Kalypso implements "Platform as Code" paradigm. Platform team defines the state of the platform with abstractions/resources and stores them as yaml files in a Git repository. There is a tool that takes this "code" and converts it into the platform.
 
-This is very similar to the "Infrastructure as Code" concept when the infrastructure is defined with a set of Terraform or Bicep resources that are stored in a repo and there is a tool (Terraform/Bicep) that provisions and updates the infra resources. Yes, there is UI, such as Azure Portal, where you can create the infra resources as well, but no-one does it scale for a number of good reasons. The best practice is to go with the "as code" approach.       
+This is very similar to the "Infrastructure as Code" concept when the infrastructure is defined with a set of Terraform or Bicep resources that are stored in a repo and there is a tool (Terraform/Bicep) that provisions and updates the infra resources. Yes, there is UI, such as Azure Portal, where you can create the infra resources as well, but no-one does it scale for a number of good reasons. The best practice is to go with the "as code" approach.
 
-However, it is recognized that UI and CLI tools might still be helpful to analyze the output, visualize created platform resources and see if any adjustments should be done to the "code". 
+However, it is recognized that UI and CLI tools might still be helpful to analyze the output, visualize created platform resources and see if any adjustments should be done to the "code".
 
 Currently, Kalypso CLI and UI tools are being under design.  
-
 
 ## Referenced Repositories
 

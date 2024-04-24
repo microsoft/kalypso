@@ -11,6 +11,8 @@ jobs:
   markdown-lint-check:
     name: Markdown Lint Checker
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write    
     steps:
       - name: Checkout a Git repo
         uses: actions/checkout@v3

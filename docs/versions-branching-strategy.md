@@ -31,7 +31,7 @@ The following table gives the summary of the source branching layout for a singl
 |Main (M)|Major timeline. Always contains a working and tested code from the last sprint.|Day 1 – Forever|Merged from Dev branch at the end of each sprint|On each release (e.g. v1.0.0, v1.1.0)|
 |Dev (D)|The development collaboration branch. The main driver of progress. Contains stable code only at the end of each sprint.|Day 1 – Forever|Merged from Feature branches. Merged to Main branch.|At the end of each sprint|
 |Feature (F)|A subbranch from Dev to implement a feature or to fix a bug |Created per user story/task/bug|Merged to Dev branch.|None|
-|Release (R)|Supported released version. The code is always stable. No new features here.|Release Date – End of version support|Merged from HotFix branches|On each Hot Fix (e.g. v1.0.1, v1.1.1)
+|Release (R)|Supported released version. The code is always stable. No new features here.|Release Date – End of version support|Merged from HotFix branches|On each Hot Fix (e.g. v1.0.1, v1.1.1)|
 |HotFix (HF)|A subbranch from Release to fix a bug|Created per bug|Merged to Release branch|None|
 
 Release branches live as long as a corresponding version is supported. Tags on source branches serve as milestone marks so they point events like releases, hot fixes and sprints to the exact commits in the source change history. With this approach you can get back to the code that was released years ago if you need it for some reason.

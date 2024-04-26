@@ -1,0 +1,39 @@
+name: notify-on-config-change
+
+# When thh configuration has changed, the workflow notifies the orchestrator (soource repo workflows)
+# to start the CD workflow, so the manifests are regenerated and PRed to the target environment.
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+
+jobs:
+  notify-on-config-change:
+    runs-on: ubuntu-latest
+    permissions: write-all    
+    steps:
+    - name: Checkout GitOps
+      uses: actions/checkout@v2.3.4
+      with:
+        repository: ${{ vars.MANIFESTS_REPO }}
+        token: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
+        ref: ${{ github.ref_name }}
+        path: gitops
+
+    - name: Get Tracking Info 
+      run: |
+          .github/workflows/utils/get-tracking-info.sh
+      working-directory: gitops    
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COMMIT_ID: ${{ github.sha }}
+  
+    - name: Start CD
+      run: |
+          gh workflow run cd.yml -f environment="$ACTIVE_ENVIRONMENT" -f commit_id="$PROMOTED_COMMIT_ID" -f promotion=n -f image_tag="$IMAGE_TAG" -f version="$VERSION" -r main --repo "$SRC_REPO"   
+      env:
+        GH_TOKEN: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
+        ACTIVE_ENVIRONMENT: ${{ github.ref_name }}
+        SRC_REPO: ${{ vars.SRC_REPO }}

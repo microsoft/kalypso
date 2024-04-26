@@ -1,0 +1,115 @@
+name: post-deployment
+
+# The `post-deployment` workflow checks if the deployment is successful across all clusters subscribed on this change.
+# This workflow polls Azure Resource Graph, waiting until all registered [GitOps configurations](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-gitops-flux2)
+# in the subscription are in compliance with the GitOps commit id.
+
+# If one of the clusters reports failure, the workflow fails.
+# It updates the Git commit status in the source repository as failed and the whole promotion flow stops.
+
+# Once all configurations are compliant, the workflow updates the source commit id with `ENV Deployed` status. 
+
+
+on:
+  workflow_dispatch:
+    inputs:
+      promoted_commit_id:
+        description: 'Promoted Commit Id from source repo (e.g. 62d1d965735a80afca35da9ec8d8aeb39db2da6c)'
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+        description: 'Environment where the deployment happened (e.g. d2)'
+      commit_id:
+        required: true
+        type: string
+        description: 'GitOps Commit Id (e.g. 42d1d965735a80afca35da9ec8d8aeb39db2da6c)'        
+      promotion:
+        required: false
+        type: string
+        default: y
+        description: 'If the change is a subject for the promotion (e.g. Y)'
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag'
+      version:
+        required: true
+        type: string
+        description: 'Version'
+
+
+permissions: write-all
+
+jobs:
+  post-deployment:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps: 
+
+    - name: Checkout Source
+      uses: actions/checkout@v2.3.4
+    
+    - name: Update Commit Status
+      run: |
+          .github/workflows/utils/update-status.sh pending Deploying "$ACTIVE_ENVIRONMENT"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ACTIVE_ENVIRONMENT: ${{ inputs.environment }}
+
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_SP }}
+
+    - name: Wait for deployment to complete   
+      run: |
+          .github/workflows/utils/wait-for-deployment.sh -r "$GITOPS_REPO" -b "$ACTIVE_ENVIRONMENT" -c "$COMMIT_ID"
+      env:
+        GITOPS_REPO: https://github.com/${{ vars.MANIFESTS_REPO }}
+        ACTIVE_ENVIRONMENT: ${{ inputs.environment }}
+        COMMIT_ID: ${{ inputs.commit_id }}
+
+    - name: Promote to Next Environment
+      if: inputs.promotion == 'y' && vars.NEXT_ENVIRONMENT != ''
+      run: |
+          gh workflow run cd.yml -f environment="$NEXT_ENVIRONMENT" -f commit_id="$PROMOTED_COMMIT_ID" -f image_tag="$IMAGE_TAG" -f version="$VERSION"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NEXT_ENVIRONMENT: ${{ vars.NEXT_ENVIRONMENT }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        IMAGE_TAG : ${{ inputs.image_tag }}
+        VERSION : ${{ inputs.version }}
+
+
+    - name: Update Positive Deployed Commit Status
+      if: inputs.promotion == 'y' 
+      run: |
+          .github/workflows/utils/update-status.sh "success" "Deployed: $COMMIT_ID" "$ACTIVE_ENVIRONMENT" 
+      env:
+        GH_TOKEN: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ACTIVE_ENVIRONMENT: ${{ inputs.environment }}
+        COMMIT_ID: ${{ inputs.commit_id }}        
+
+    - name: Update Positive Configured Commit Status
+      if: inputs.promotion != 'y' 
+      run: |
+          .github/workflows/utils/update-status.sh "success" "Configured: $COMMIT_ID" "$ACTIVE_ENVIRONMENT" 
+      env:
+        GH_TOKEN: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ACTIVE_ENVIRONMENT: ${{ inputs.environment }}
+        COMMIT_ID: ${{ inputs.commit_id }}        
+
+
+    - name: Update Negative Commit Status
+      if: failure() && inputs.promoted_commit_id != ''
+      run: |      
+          .github/workflows/utils/update-status.sh "failure" "Failed to deploy" "$ACTIVE_ENVIRONMENT"  
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ACTIVE_ENVIRONMENT: ${{ inputs.environment }}              
+        

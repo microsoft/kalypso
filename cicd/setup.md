@@ -2,7 +2,7 @@
 
 ## Have Manifest Templates
 
-The CD flow generates K8s manifests for each environment. It needs manifests templates for that. This setup expects that the application source repository contains Helm templates for that purpose. For example like this [Hello World](https://github.com/microsoft/kalypso-app-src/tree/main/helm) application.
+The CD flow generates K8s manifests for each environment. It needs manifests templates for that. This setup expects that the application source repository contains Helm templates for that purpose. For example, like this [Hello World](https://github.com/microsoft/kalypso-app-src/tree/main/helm) application.
 
 It's not required to use Helm, though. You are free to go with your preferred templating approach, but in this case you'll have to update [generate-manifests.sh](../.github/workflows/templates/utils/generate-manifests.sh) utility to generate manifests in you way, instead of Helm.
 

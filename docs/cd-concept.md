@@ -31,3 +31,11 @@ If the deployment and post deployment activities are successful, the CD process 
 The information from the Deployment Observability Hub is consumed by the observability backends, such as Azure Monitor and/or Grafana for monitoring and alerting.
 
 Every environment may contain different clusters for different applications and purposes. E.g. a cluster for functional testing and a cluster for performance testing. Every cluster may have different configurations and platform services. All this behavior is defined in the [Control Plane](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-workload-management#high-level-flow). It serves to manage environments, clusters, define rules of what applications should be deployed to what clusters in what environments, provide cluster configurations.
+
+## Implementation
+
+See [GitOps CI/CD with GitHub](../cicd/cd-gitops-gh.md) to understand the mechanics of the promotional flow implementation with GitHub Actions WOrkflows.
+
+## Setup
+
+Follow the [setup](../cicd/setup.md) instructions to bootstrap the GitOps CI/CD for your application.

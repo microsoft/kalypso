@@ -1,0 +1,110 @@
+name: deploy
+ 
+# The `deploy` workflow takes the Helm manifest templates from the source repo according to the source commit id. 
+# It generates K8s manifests applying config values from the Config Git repo. 
+# It takes the config values from a branch corresponding to the current environment. 
+# Having manifests generated, it creates a PR to the GitOps repository on the processed environment/ring branch. 
+# The workflow updates the Git commit status specifying that the change has been promoted to the environment.
+ 
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_id:
+        required: true
+        type: string
+        description: 'Source commit_id (e.g. 62d1d965735a80afca35da9ec8d8aeb39db2da6c)'
+      environment:
+        required: false
+        default: dev
+        type: string
+        description: 'Environment to deploy to (e.g. d2)'
+      promotion:
+        required: false
+        type: string
+        default: y
+        description: 'If the change is a subject for the promotion (e.g. Y)'
+      image_tag:
+        required: true
+        type: string
+        description: 'Image tag'
+      version:
+        required: true
+        type: string
+        description: 'Version (e.g. 0.0.1-15)'
+
+
+jobs:
+  Deploy:
+      name: "Deploy"
+      runs-on: ubuntu-latest
+      permissions: write-all
+      environment: ${{ inputs.environment }}
+      steps:      
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commit_id }}
+      - name: Checkout Configs
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ${{ vars.CONFIGS_REPO }}
+          ref: ${{ inputs.environment }}
+          path: configs
+          token: ${{ secrets.CD_BOOTSTRAP_TOKEN }}        
+      
+      - name: Get Config Commit Id
+        run: |
+            CONFIG_COMMIT_ID=$(git rev-parse HEAD)
+            echo "CONFIG_COMMIT_ID=$CONFIG_COMMIT_ID" >> $GITHUB_ENV
+        working-directory: configs
+
+      - name: Set Image tag
+        run: |
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }} 
+          VERSION: ${{ inputs.version }} 
+      
+      - name: Generate Manifests
+        run: |
+          .github/workflows/utils/generate-manifests.sh "$HELM_PATH" "$CONFIGS_PATH" "$MANIFESTS_PATH"
+        env:
+          HELM_PATH: ${{ github.workspace }}/helm
+          CONFIGS_PATH: ${{ github.workspace }}/configs  
+          MANIFESTS_PATH: ${{ github.workspace }}/manifests
+          WORKLOAD: ${{ github.event.repository.name }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          SOURCE_REPO: ${{ github.event.repository.full_name }}
+          SOURCE_BRANCH: ${{ github.event.repository.default_branch }}
+          GITOPS_REPO: ${{ vars.MANIFESTS_REPO }}
+          VERSION: ${{ env.VERSION }}
+          SRC_COMMIT: ${{ inputs.commit_id }}          
+          CONFIG_REVISION: ${{ env.CONFIG_COMMIT_ID}}
+          IMAGE_NAME: ghcr.io/${{ github.repository }}/${{ github.event.repository.name }}
+
+
+
+      - name: Create PR
+        run: |
+          promoted=$(if [ ${{ inputs.promotion }} == "y" ]; then echo "promoted"; fi)          
+          .github/workflows/utils/create-pr.sh -s "$MANIFESTS_PATH" -d . -r "$MANIFESTS_REPO" -b "$ACTIVE_ENVIRONMENT" -i "$IMAGE_TAG" -t "$TOKEN" -e "$ACTIVE_ENVIRONMENT" -m N -l $promoted
+        env:
+          PROMOTED_COMMIT_ID: ${{ inputs.commit_id }}
+          CONFIG_COMMIT_ID: ${{ env.CONFIG_COMMIT_ID }} # from the Get Config Commit Id step 
+          MANIFESTS_PATH: ${{ github.workspace }}/manifests
+          MANIFESTS_REPO: https://github.com/${{ vars.MANIFESTS_REPO }}
+          TOKEN: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
+          ACTIVE_ENVIRONMENT: ${{ inputs.environment }}
+
+      - name: Update Commit Status
+        run: |
+            .github/workflows/utils/update-status.sh "pending" "Promoted" "$ACTIVE_ENVIRONMENT"        
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROMOTED_COMMIT_ID: ${{ inputs.commit_id }}
+          ACTIVE_ENVIRONMENT: ${{ inputs.environment }}          
+      
+

@@ -2,7 +2,7 @@
 
 ## Have Manifest Templates
 
-The CD flow generates K8s manifests for each environment. It needs manifests templates for that. This setup expects that the application source repository contains Helm templates for that purpose.
+The CD flow generates K8s manifests for each environment. It needs manifests templates for that. This setup expects that the application source repository contains Helm templates for that purpose. For example like this [Hello World](https://github.com/microsoft/kalypso-app-src/tree/main/helm) application.
 
 It's not required to use Helm, though. You are free to go with your preferred templating approach, but in this case you'll have to update [generate-manifests.sh](../.github/workflows/templates/utils/generate-manifests.sh) utility to generate manifests in you way, instead of Helm.
 
@@ -46,14 +46,14 @@ The script will do the following:
 - Create `gitops` repository with the name `<github org>/<github application src repo>-gitops` (e.g. `eedorenko/hello-world-gitops`). If the repo already exists, it will take it.
 - Create a branch in the `gitops` repository with the environment name (e.g. `dev`)
 - Add necessary GH actions workflows to the `gitops` repository
-- Configure necessary variables and secrets in the the `gitops` repository  
+- Configure necessary variables and secrets in the `gitops` repository  
 - Create `configs` repository with the name `<github org>/<github application src repo>-configs` (e.g. `eedorenko/hello-world-configs`). If the repo already exists, it will take it.
 - Create a branch in the `configs` repository with the environment name (e.g. `dev`)
 - If the environment branch already exists in the `configs` repository and it contains any folders, the script leaves it as is. Otherwise it creates a folder `rename_me` with empty `values.yaml`.
 - Add necessary GH actions workflows to the `configs` repository
-- Configure necessary variables and secrets in the the `configs` repository
+- Configure necessary variables and secrets in the `configs` repository
 - Create the `source` repository if it doesn't exist.
-- Configure necessary variables and secrets in the the `source` repository
+- Configure necessary variables and secrets in the `source` repository
 - Create a PR `GitOps CD setup` to the `source` repo with the necessary GH actions workflows and utility scripts
 
 Merge the `GitOps CD setup` PR into the `source` repository.

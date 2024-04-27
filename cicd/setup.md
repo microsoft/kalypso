@@ -12,9 +12,17 @@ The Helm chart should be put in the `/helm` folder in the source repo. Example -
 
 Run `setup.sh` script:
 
-Usage: setup.sh -o <github org> -r <github application src repo> -e <first environment in chain>
+Usage: 
 
-Example: setup.sh -o eedorenko -r hello-world -e dev
+```sh
+./setup.sh -o <github org> -r <github application src repo> -e <first environment in chain>
+```
+
+Example: 
+
+```sh
+./setup.sh -o eedorenko -r hello-world -e dev
+```
 
 The script requires the following environment variables to be set:
 

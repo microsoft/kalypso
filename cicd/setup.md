@@ -82,7 +82,7 @@ The folder structure in the `configs` repo determines the folder structure in th
 
 The bootstrap script creates `rename_me` folder in the `configs` repo environment branch with an empty `values.yaml` file in it. Normally, a Helm chart in the source repo contains `values.yaml` file with all possible application configurations that the Helm chart understands. Define what values you want to override at the environment/target level. For example, for the [hello-world](https://github.com/microsoft/kalypso-app-src/blob/main/helm/values.yaml) application we want to provide the following values for `functional-testing` clusters (target) in the `dev` environment. We want to rename `rename_me/values.yaml` to `functional-testing/values.yaml` and put the values in the file:
 
-```
+```yaml
 app:
   name: hello-world-functional
 replicas: 3

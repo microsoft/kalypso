@@ -36,6 +36,6 @@ Every environment may contain different clusters for different applications and 
 
 See [GitOps CI/CD with GitHub](../cicd/cd-gitops-gh.md) to understand the mechanics of the promotional flow implementation with GitHub Actions WOrkflows.
 
-## Setup 
+## Setup
 
-Follow the [setup](../cicd/setup.md) instructions to bootstrap the GitOps CI/CD for your application. 
+Follow the [setup](../cicd/setup.md) instructions to bootstrap the GitOps CI/CD for your application.

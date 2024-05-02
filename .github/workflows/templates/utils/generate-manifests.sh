@@ -49,6 +49,7 @@ for dir in `find . -type d \( ! -name . \)`; do
             path="$(readlink -f "$path"/..)"
         done
         # Generate manifests out of helm chart
+        envsubst <"$manifests_dir/$values_file_name" > "$manifests_dir/$values_file_name"1 && mv "$manifests_dir/$values_file_name"1 "$manifests_dir/$values_file_name"
         helm template "$FOLDER_WITH_MANIFESTS" -f $manifests_dir/$values_file_name > $manifests_dir/$gen_manifests_file_name && \
         cat $manifests_dir/$gen_manifests_file_name
         if [ $? -gt 0 ]

@@ -82,9 +82,9 @@ if [[ `git status --porcelain | head -1` ]]; then
 
     # In case the deploy branch already exists, merge it with the current changes
     echo "Pull the deploy branch $deploy_branch_name"
-    echo "git pull $repo_url $deploy_branch_name -s recursive -X ours"
+    echo "git pull $repo_url $deploy_branch_name -s ours"
     git config pull.rebase false
-    git pull $repo_url $deploy_branch_name -s recursive -X ours || true
+    git pull $repo_url $deploy_branch_name -s ours || true
 
     # Push to the deploy branch 
     echo "Push to the deploy branch $deploy_branch_name"

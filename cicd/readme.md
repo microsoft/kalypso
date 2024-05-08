@@ -28,6 +28,10 @@ Once all configurations are compliant, the workflow updates the source commit id
 
 The workflow checks if the change that started the CD should be promoted (e.g. originated in `main`) to the next environment and if the next environment is configured, it starts a new loop by invoking the `deploy` workflow for the next environment. The next environment name is stored in `NEXT_ENVIRONMENT` GH environment variable. The whole process stops when there is no next environment in the chain.
 
+## Tutorial
+
+In order to try out the promotional flow, go through the [tutorial](./tutorial/cicd-tutorial.md) that provides an end-to-end sample with the the guidance on deploying, promoting and configuring and application in GitOps fashion.
+
 ## Setup
 
 Follow the [setup](./setup.md) instructions to bootstrap the GitOps CI/CD for your application.

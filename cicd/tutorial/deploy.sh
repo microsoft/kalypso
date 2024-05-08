@@ -19,7 +19,8 @@ appsrc_repo_name=$ORG/$PREFIX
 appgitops_repo_name=$appsrc_repo_name-gitops
 appconfigs_repo_name=$appsrc_repo_name-configs
 rg_name=$PREFIX-rg
-cluster_name=$PREFIX-cluster
+left_cluster_name=$PREFIX-left-cluster
+right_cluster_name=$PREFIX-right-cluster
 
 check_src_repo() {
     gh repo view $appsrc_repo_name >/dev/null 2>&1
@@ -98,10 +99,13 @@ delete_gh_repositories() {
 createAzureResources() {
     echo "Creating Azure resources..."    
     az group create -n $rg_name -l $LOCATION
-    create_flux_cluster_type
+    create_flux_cluster_type $left_cluster_name
+    create_flux_cluster_type $right_cluster_name
 }
 
 create_flux_cluster_type() {
+  cluster_name=$1
+
   echo "Creating "$cluster_name" AKS cluster..." 
   create_AKS_cluster $cluster_name
 
@@ -139,23 +143,26 @@ create_flux_cluster_type() {
   kubectl create ns dev        
   kubectl create ns stage
 
-  create_platform_config_map dev
-  create_platform_config_map stage
+  create_platform_config_map $cluster_name dev
+  create_platform_config_map $cluster_name stage
   
 }
 
 create_platform_config_map() {
+    cluster_name=$1
+    environment=$2
     kubectl create configmap platform-config --from-literal=CLUSTER_NAME=$cluster_name \
         --from-literal=REGION=westus2 \
-        --from-literal=ENVIRONMENT=$1 \
+        --from-literal=ENVIRONMENT=$environment \
         --from-literal=DATABASE_URL=https://database.mysql.com \
-        -n $1    
+        -n $environment    
 }
 
 create_AKS_cluster() {
-    az aks create -g $rg_name -n $1 -l $LOCATION --node-count 1 --generate-ssh-keys
-    az aks get-credentials -g $rg_name -n $1
-    az aks show -g $rg_name -n $1 -o table
+    cluster_name=$1
+    az aks create -g $rg_name -n $cluster_name -l $LOCATION --node-count 1 --generate-ssh-keys
+    az aks get-credentials -g $rg_name -n $cluster_name
+    az aks show -g $rg_name -n $cluster_name -o table
 }
 
 
@@ -179,7 +186,8 @@ create() {
     echo "  - "$gh_prefix/$appconfigs_repo_name
     echo "---------------------------------"
     echo "Created AKS clusters in "$rg_name" resource group:"
-    echo "  - $cluster_name"
+    echo "  - $left_cluster_name"
+    echo "  - $right_cluster_name"
     echo "---------------------------------"
 }
 
@@ -197,7 +205,8 @@ delete() {
     echo "  - "$gh_prefix/$appconfigs_repo_name
     echo "---------------------------------"
     echo "Deleted AKS clusters in "$rg_name" resource group:"
-    echo "  - $cluster_name"
+    echo "  - $left_cluster_name"
+    echo "  - $right_cluster_name"
     echo "---------------------------------"
 }
 

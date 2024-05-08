@@ -10,21 +10,20 @@ In order to successfully deploy the sample, you need:
 - [Azure CLI](/cli/azure/install-azure-cli)
 - [GitHub CLI](https://cli.github.com)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- GitHub token with the following scopes: 
-   Classic: `repo`, `workflow`, `write:packages`, `delete:packages`, `read:org`, `delete_repo`.
-   Fine-grained: 
-        `Actions` - R/W
-        `Administration` - R/W
-        `Commit statuses` - R/W
-        `Contents` - R/W
-        `Metadata` - RO
-        `Pull requests` - R/W
-        `Secrets` - R/W
-        `Variables` - R/W
-        `Workflows` - R/W
+- GitHub token with the following scopes:
+  - Classic: `repo`, `workflow`, `write:packages`, `delete:packages`, `read:org`, `delete_repo`.
+  - Fine-grained:
+    - `Actions` - R/W
+    - `Administration` - R/W
+    - `Commit statuses` - R/W
+    - `Contents` - R/W
+    - `Metadata` - RO
+    - `Pull requests` - R/W
+    - `Secrets` - R/W
+    - `Variables` - R/W
+    - `Workflows` - R/W
 
-
-## 1 - Deploy the sample
+## Deploy the sample
 
 To deploy the sample, run the following script:
 
@@ -53,12 +52,12 @@ Created AKS clusters in hello-world-rg resource group:
 
 > [!NOTE]
 > If something goes wrong with the deployment, you can delete the created resources with the following command:
-> 
+>
 > ```bash
 > ./deploy.sh -d -p <preix. e.g. hello-world> -o <GitHub org. e.g. eedorenko> -t <GitHub token> -l <azure-location. e.g. westus2> 
 > ```
 
-### Sample overview
+## Sample overview
 
 This deployment script creates an infrastructure, shown in the following diagram:
 
@@ -66,9 +65,9 @@ This deployment script creates an infrastructure, shown in the following diagram
 
 There are a few GitHub repositories:
 
-- `Application Source` (https://github.com/GITHUB-ORG/PREFIX): Contains a sample application source code, including Docker files, manifest templates and CI/CD workflows.
-- `Application Configs` (https://github.com/GITHUB-ORG/PREFIX-configs): Contains application configuration values.
-- `Application GitOps` (https://github.com/GITHUB-ORG/PREFIX-gitops): Contains final sample application manifests to be deployed to the deployment targets.
+- `Application Source` (<https://github.com/GITHUB-ORG/PREFIX>): Contains a sample application source code, including Docker files, manifest templates and CI/CD workflows.
+- `Application Configs` (<https://github.com/GITHUB-ORG/PREFIX-configs>): Contains application configuration values.
+- `Application GitOps` (<https://github.com/GITHUB-ORG/PREFIX-gitops>): Contains final sample application manifests to be deployed to the deployment targets.
 
 The script creates `PREFIX-rg` resource group with two Azure Kubernetes Service (AKS) clusters: `PREFIX-left-cluster` and `PREFIX-right-cluster`.
 
@@ -76,7 +75,7 @@ These clusters have the [GitOps extension](conceptual-gitops-flux2.md) installed
 
 Both AKS clusters have `dev` and `stage` namespaces to represent `dev` and `stage` environments.
 
-### Build
+## Build
 
 Right after the deployment, the `Application Source` repository automatically starts `ci` workflow. It builds a Docker image and pushes it to the GitHub packages. At the very end `ci` workflow starts `deploy` workflow, that generates Kubernetes manifests for `dev` environment and creates a PR to the `Application GitOps` repository.
 
@@ -88,13 +87,13 @@ Both `ci` and `cd` workflows update Git commit status in the `Application Source
 
 The application has been built and promoted to `dev` environment. The created PR with the manifests to the `dev` branch in the `Application GitOps` repository represents a fact of promotion. The application has not been deployed yet.
 
-### Deploy
+## Deploy
 
 Once the PR with the manifests has been reviewed and merged, Flux controllers, running on the Kubernetes clusters, start to pull the changes and apply them to the cluster. In addition to that, Azure Arc GitOps controllers on the clusters report the state of this process up to Azure. It can be monitored for every cluster in Azure Portal on the `GitOps` tab:
 
 ![cicd-tutorial-gitops](../../docs/images/cicd-tutorial-gitops.png)
 
-The `Application Source` repository serves as a main `CI/CD` orchestrator. It starts a GitHub workflow `post-deployment` that polls Azure Resource Graph, waiting until the deployment process on all clusters is finished. 
+The `Application Source` repository serves as a main `CI/CD` orchestrator. It starts a GitHub workflow `post-deployment` that polls Azure Resource Graph, waiting until the deployment process on all clusters is finished.
 
 ![cicd-tutorial-post-deployment](../../docs/images/cicd-tutorial-post-deployment.png)
 
@@ -121,8 +120,6 @@ While this command is running, open `localhost:8080` in your browser. You'll see
 
 Use different Kubernetes context to test the application on the `right` cluster:
 
-To test the application on the `left` cluster run the following command:
-
 ```bash
 kubectl port-forward svc/hello-world-functional-service -n dev 8080:8080 --context=<PREFIX>-right-cluster
 
@@ -132,7 +129,7 @@ kubectl port-forward svc/hello-world-functional-service -n dev 8080:8080 --conte
 
 ```
 
-### Promote
+## Promote
 
 After successful deployment to `dev` environment, the `post-deployment` workflow starts `deploy` flow again to promote the application version to the `stage` environment. The `deploy` workflow takes configuration values from the `stage` branch of the `Application Configs` repository, generates Kubernetes manifests and creates a PR to the `stage` branch of the `Application GitOps` repository.
 
@@ -156,9 +153,9 @@ and on the `right` cluster:
 kubectl port-forward svc/hello-world-functional-service -n stage 8080:8080 --context=<PREFIX>-right-cluster
 ```
 
-### Configure 
+## Configure
 
-Let's reconfigure the application on the `dev` environment and decrease a number of replicas to 1. 
+Let's reconfigure the application on the `dev` environment and decrease a number of replicas to 1.
 
 Open a terminal and use the following script:
 
@@ -188,4 +185,13 @@ This push to the `Application Configs` repository will start `deploy` workflow i
 
 ![cicd-tutorial-config-pr](../../docs/images/cicd-tutorial-config-pr.png)
 
-Once the PR is merged, Flux reflects this change on the clusters and reduces the number of application pods in `dev` environment. This is an environment specific change, so it's not supposed to be promoted anywhere.   
+Once the PR is merged, Flux reflects this change on the clusters and reduces the number of application pods in `dev` environment. This is an environment specific change, so it's not supposed to be promoted anywhere.
+
+## Clean up resources
+
+When no longer needed, delete the resources that you created. To do so, run the following command:
+
+```bash
+# In kalypso folder
+./deploy.sh -d -p <prefix. e.g. hello-world> -o <GitHub org. e.g. eedorenko> -t <GitHub token> -l <azure-location. e.g. westus2> 
+```

@@ -7,7 +7,7 @@ This tutorial walks you through an example scenario of a CI/CD flow, implemented
 In order to successfully deploy the sample, you need:
 
 - An Azure subscription. If you don't already have one, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
-- [Azure CLI](/cli/azure/install-azure-cli)
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [GitHub CLI](https://cli.github.com)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - GitHub token with the following scopes:
@@ -65,13 +65,13 @@ This deployment script creates an infrastructure, shown in the following diagram
 
 There are a few GitHub repositories:
 
-- `Application Source` (<https://github.com/GITHUB-ORG/PREFIX>): Contains a sample application source code, including Docker files, manifest templates and CI/CD workflows.
-- `Application Configs` (<https://github.com/GITHUB-ORG/PREFIX-configs>): Contains application configuration values.
-- `Application GitOps` (<https://github.com/GITHUB-ORG/PREFIX-gitops>): Contains final sample application manifests to be deployed to the deployment targets.
+- `Application Source` (GITHUB-ORG/PREFIX): Contains a sample application source code, including Docker files, manifest templates and CI/CD workflows.
+- `Application Configs` (GITHUB-ORG/PREFIX-configs): Contains application configuration values.
+- `Application GitOps` (GITHUB-ORG/PREFIX-gitops): Contains final sample application manifests to be deployed to the deployment targets.
 
 The script creates `PREFIX-rg` resource group with two Azure Kubernetes Service (AKS) clusters: `PREFIX-left-cluster` and `PREFIX-right-cluster`.
 
-These clusters have the [GitOps extension](conceptual-gitops-flux2.md) installed and it uses `Flux` to reconcile manifests from the `Application GitOps` repository.
+These clusters have the `GitOps extension` installed and it uses `Flux` to reconcile manifests from the `Application GitOps` repository.
 
 Both AKS clusters have `dev` and `stage` namespaces to represent `dev` and `stage` environments.
 

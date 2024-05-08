@@ -381,10 +381,10 @@ delete_gh_repositories() {
 
 create() {
     echo "---------------------------------"
-    echo "Starting depoyment. Time for a coffee break. It will take a few minutes..."
+    echo "Starting deployment. Time for a coffee break. It will take a few minutes..."
     create_gh_repositories
     createAzureResources
-    echo "Depoyment is complete!"
+    echo "Deployment is complete!"
     echo "---------------------------------"
     echo "Created repositories:"
     echo "  - "$gh_prefix/$controlplane_repo_name

@@ -218,7 +218,7 @@ setup_configs_repo() {
 configure_src_repo() {
     echo "Configuring Repository "$src_repo_name 
     
-    gh variable set MANIFESTS_REPO -b $gitops_repo_name".git" -R $src_repo_name
+    gh variable set MANIFESTS_REPO -b $gitops_repo_name -R $src_repo_name
     gh variable set CONFIGS_REPO -b $configs_repo_name -R $src_repo_name
     gh secret set CD_BOOTSTRAP_TOKEN -b $TOKEN -R $src_repo_name
     gh secret set AZURE_CREDENTIALS_SP -b "$AZURE_CREDENTIALS_SP" -R $src_repo_name    

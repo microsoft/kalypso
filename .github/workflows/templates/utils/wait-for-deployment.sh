@@ -78,7 +78,7 @@ get_all_configs() {
 # Queries the Azure Resource Graph for all FluxConfigurations in the specified repository and branch that are synched and in the specified compliance state
 get_synched_configs() {
     complianceState=$1
-    sycnhed_query="kubernetesconfigurationresources | where type == 'microsoft.kubernetesconfiguration/fluxconfigurations' | where properties.gitRepository.url == ""'""$REPO_URL""'"" | where properties.gitRepository.repositoryRef.branch == ""'""$REPO_BRANCH""'"" | where properties.complianceState == ""'""$complianceState""'"""
+    sycnhed_query="kubernetesconfigurationresources | where type == 'microsoft.kubernetesconfiguration/fluxconfigurations' | where properties.gitRepository.url == ""'""$REPO_URL""'"" | where properties.sourceSyncedCommitId == ""'""$REPO_BRANCH@sha1:$COMMIT_ID""'"" | where properties.complianceState == ""'""$complianceState""'"""
     az graph query -q "$sycnhed_query"
 }
 

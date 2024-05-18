@@ -2,7 +2,7 @@
 
 ## Promotional Flow
 
-The promotional flow is implemented with a chain of GiHub Actions Workflows:
+The promotional flow is implemented with a chain of GitHub Actions Workflows:
 
 ![promotion-flow](../docs/images/gh-promotion-flow.png)
 

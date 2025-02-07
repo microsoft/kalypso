@@ -132,7 +132,7 @@ Each Environment optionally contains a variable called `NEXT_ENVIRONMENT` that p
 
 We will update `prevenv` to include a new `NEXT_ENVIRONMENT` variable that points to the new `newenv` environment.
 
-> TODO: linked list env chain diagram
+![diagram of enviornment sequence](./images/next_environment.drawio.png)
 
 First, create a new Environment called `newenv`.
 

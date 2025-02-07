@@ -103,7 +103,7 @@ Each GitHub environment optionally contains a variable called `NEXT_ENVIRONMENT`
 
 We will update `dev-prevring` to include a new `NEXT_ENVIRONMENT` variable that points to the new `dev-newring` ring.
 
-> TODO: ring list diagram
+![diagram of environment ring sequence](./images/next_ring.drawio.png)
 
 Update the previous GitHub Environment, `dev-prevring`, to point to the new `NEXT_ENVIRONMENT`, `dev-newring`.
 

@@ -25,7 +25,7 @@ This run book does not include instructions on how to manage application or plat
 
 A high-level overview of the application promotion flow is shown below.
 
-> TODO: diagram of flow
+![diagram of application promotion flow](./images/promote-flow.drawio.png)
 
 1. Application developer submits a change to the source repository. A pull request is created, reviewed, and merged into the `main` branch.
 2. Continuous integration performs automated code quality checks, and builds artifacts required for deployment.

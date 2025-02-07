@@ -2,14 +2,6 @@
 
 This collection of run books provides general guidelines for executing common use cases against the Kalypso control plane and application repositories.
 
-## Assumptions
-
-> TODO: verify these restrictions before merging.
-
-- AKS Clusters or Arc-enabled AKS Clusters (required for k8s extensions)
-- Using the Azure Flux GitOps operator
-- Applications use 3 repositories (source, config, gitops)
-
 ## Run Books
 
 | Team        | Run Book                                                                                              |
@@ -22,5 +14,3 @@ This collection of run books provides general guidelines for executing common us
 | Application | [Create a New Application Ring](./application-team-creates-a-new-application-ring.md)                 |
 | Application | [Promote a Change Through Environments](./application-team-promotes-a-change-through-environments.md) |
 | Application | [Manage Application Configuration](./application-team-manages-application-configuration.md)           |
-
-> TODO: all runbooks need screenshots & examples

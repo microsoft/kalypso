@@ -15,7 +15,7 @@
 
 ## Overview
 
-This ron book describes how to manage deployment rings for applications. Rings can be used to create separate scopes and stages for deploying applications out to clusters. This creates an additional promotion flow within the platform environments.
+This run book describes how to manage deployment rings for applications. Rings can be used to create separate scopes and stages for deploying applications out to clusters. This creates an additional promotion flow within the platform environments.
 
 Rings and their promotion flow are unique to each application. In this run book, we will walk through the process for including a new ring for a single application.
 
@@ -29,7 +29,7 @@ Each application constists of 3 git repositories. A source repository, a configu
 
 ### 2. Admin Access to Deployment Observability Dashboards
 
-The deployment observability dashboards for the [Kalypso Observability Hub](https://github.com/microsoft/kalypso-observability-hub) show the deployment status for applications across environments, rings, and clusters. In this runbook, we will exapand this dashboard to include new rings.
+The deployment observability dashboards for the [Kalypso Observability Hub](https://github.com/microsoft/kalypso-observability-hub) show the deployment status for applications across environments, rings, and clusters. In this runbook, we will expand this dashboard to include new rings.
 
 > TODO: screenshot
 
@@ -39,7 +39,7 @@ The deployment observability dashboards for the [Kalypso Observability Hub](http
 
 First, create a branch in the application's GitOps repository. This repo has a branch for every ring & environment combination that holds relevant GitOps manifest files.
 
-Inside the GitOps repository create a new git branch based off of the latest ring. In this run book, we will create `dev-newring` based off `dev-prevring`.
+Inside the GitOps repository, create a new git branch based off of the latest ring. In this run book, we will create `dev-newring` based off `dev-prevring`.
 
 ```sh
 # switch to the existing base branch
@@ -93,7 +93,7 @@ After pushing the config branch to GitHub, a PR will automatically be generated 
 
 Merge this PR, and the new ring is ready to use.
 
-> TODO: screenshot
+![alt text](./images/gitops-pr.png)
 
 ### 4. Link Environment in Promotion Sequence
 

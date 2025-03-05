@@ -16,7 +16,7 @@
 
 ### 1. Access to Platform Control Plane and GitOps Repos
 
-This run book is intended to be completed a the Platform Engineer with contributor access to the Kalypso Control Plane and Platform GitOps repositories.
+This run book is intended to be completed by the Platform Engineer with contributor access to the Kalypso Control Plane and Platform GitOps repositories.
 
 For reference, here are the example [Control Plane](https://github.com/microsoft/kalypso-control-plane) and [Platform GitOps](https://github.com/microsoft/kalypso-gitops) repositories from Kalypso.
 
@@ -26,17 +26,12 @@ The clusters compose the fleet, and the applications are the workloads that will
 
 **It is not strictly required to have a cluster provisioned before scheduling applications onto it.** If the cluster is not onboarded to the fleet, this run book will create the GitOps manifests in GitHub, but there will be no flux reconcilers watching these manifests, so they will not be deployed.
 
-If the cluster is onboarded to the fleet, we will need to collect its flux configuration for watching the platform GitOps repos. There will be a GitOps configuration for each environment.
-
-Identify the `path` values for each environment's Kustomization. This will be used in [step 2](#2-create-or-find-a-clustertype) when declaring a cluster type.
-
 Collect the following values for use later in this run book.
 
 | Variable            | Description                  |
 | ------------------- | ---------------------------- |
-| `CLUSTER_TYPE_NAME` | The name of the cluster type |
+| `CLUSTER_TYPE_NAME` | The logical name of the cluster (e.g. `Mayberry`) or a group of identical clusters|
 
-> TODO: example
 
 ### 3. Identify an Application
 
@@ -54,7 +49,6 @@ Collect the following values for use later in this run book.
 | `APPLICATION_NAME`    | the application name inside the workload yaml file                      |
 | `KALYPSO_WORKSPACE`   | this is a custom label for grouping workloads within the Kalypso system |
 
-> TODO: example
 
 ## Steps
 
@@ -79,11 +73,11 @@ spec:
   workspace: <KALYPSO_WORKSPACE>
 ```
 
-> TODO: example
+![workload-registration](./images/workload-registration.png)
 
 ### 2. Create or Find a `ClusterType`
 
-This needs to be done for each environment & cluster that can host applications. If your cluster and environment already hosts applications, this should be done already.
+This needs to be done for each environment and cluster type that can host applications. If your cluster and environment already hosts applications, this should be done already.
 
 Otherwise, you will need to submit a [`ClusterType`](https://github.com/microsoft/kalypso-scheduler?tab=readme-ov-file#cluster-type) to the branch for your cluster inside the `cluster-types/` folder.
 
@@ -104,7 +98,7 @@ spec:
   configType: configmap
 ```
 
-> TODO: example
+![mayberry-cluster](./images/mayberry-cluster.png)
 
 ### 3. Schedule an Application for Deployment onto a Cluster
 
@@ -128,7 +122,7 @@ spec:
     labelSelector:
       matchLabels:
         # modify these labels to match the desired deployment targets
-        ring: gray
+        zone: gray
   clusterTypeSelector:
     labelSelector:
       matchLabels:
@@ -139,21 +133,21 @@ spec:
 
 > Note: there is no mention of the specific workload or cluster host in this object, but it is the link that makes specific workloads get deployed onto specific clusters because of how applications and clusters are independently labeled.
 
-> TODO: example
+![scheduling-policy](./images/scheduling-policy.png)
 
 ### 4. Merge GitOps PRs
 
-Until now, only our application workload scheduling desire has been declared in the Control Plane repository. Nothing has actually been deployed yet. The previous actions will create pull requestes automatically in the Platform GitOps repository as appropriate.
+Until now, only our application workload scheduling desire has been declared in the Control Plane repository. Nothing has actually been deployed yet. The previous actions will create pull requests automatically in the Platform GitOps repository as appropriate.
 
 The GitOps pattern uses these final pull requests as a manual approval for actually deploying applications to clusters.
 
-Navigate to the Platform GitOps Pull Requets view to see any automated PRs that were created. Once these PRs are merged, clusters watching the GitOps repository will automatically pull and install the updates.
+Navigate to the Platform GitOps Pull Requests view to see any automated PRs that were created. Once these PRs are merged, clusters watching the GitOps repository will automatically pull and install the updates.
 
 Your specific pull requests will look different based on what applications are scheduled onto which clusters.
 
 ## Next Steps
 
-The Kalypso Observability Hub dashboards provide an overview of what applications are deployed into which clusters.
+The [Kalypso Observability Hub](https://github.com/microsoft/kalypso-observability-hub?tab=readme-ov-file#deployment-reports) dashboards provide an overview of what applications are deployed into which clusters.
 
 If there are any issues with scheduled deployments, work with the application experts to troubleshoot. There may be issues with configuration.
 

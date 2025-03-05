@@ -14,11 +14,11 @@
 
 ## Prerequisites
 
-This run book describes how to create a new environment for generating GitOps manifests at the platform level. An example promotional flow through environments might be `dev` -> `test` -> `prod` for workloads in a fleet. This runbook describes the steps necessary for creating these environments.
+This run book describes how to create a new GitOps environment at the platform level. An example promotional flow through environments might be `dev` -> `test` -> `prod` for workloads in a fleet. This runbook describes the steps necessary for creating these environments.
 
 ### 1. Admin Access to Platform Repositories
 
-This run book is intended to be completed a the Platform Engineer with admin access to the Kalypso Control Plane and Platform GitOps repositories.
+This run book is intended to be completed by a Platform Engineer with admin access to the Kalypso Control Plane and Platform GitOps repositories.
 
 Admin access is required for modifying GitHub Environments in the control plane repository.
 
@@ -33,7 +33,7 @@ Identify the following values for use in this runbook
 
 ## Steps
 
-This run book will walk through an example of creating a `newenv` environment to the end of the environment promotion sequence.
+This run book will walk through an example of creating a `newenv` environment to the end of the environments chain.
 
 For creating other environments, replace `newenv` with your environment name.
 
@@ -77,7 +77,7 @@ git push -u origin newenv
 
 Once complete, there should be a new branch in GitHub named `newenv`. This branch will only contain the `.github/workflows/check-promote.yaml` file and the README.md.
 
-> TODO: add screenshot of "empty" gitops branch in GitHub
+![empty-environment-branch](./images/empty-environment-branch.png)
 
 ### 2. Create a Control Plane Branch
 
@@ -122,7 +122,7 @@ git push -u origin newenv
 
 In our example `newenv` environment, we updated a few `ConfigMap` objects, but did not change any `SchedulingPolicy` or `ClusterType` objects.
 
-> TODO: screenshot of changes
+![update-config](./images/update-config.png)
 
 ### 3. Link Environment in Promotion Sequence
 
@@ -136,11 +136,11 @@ We will update `prevenv` to include a new `NEXT_ENVIRONMENT` variable that point
 
 First, create a new Environment called `newenv`.
 
-> TODO: screenshot of new environment
+![new-environment](./images/new-environment.png)
 
 Update the previous environment, `prevenv`, to point to the new `NEXT_ENVIRONMENT`, `newenv`.
 
-> TODO: screenshot
+![next-environment](./images/next-environment.png)
 
 ### 4. Declare the Environment in the Control Plane
 
@@ -161,15 +161,7 @@ spec:
     path: .
 ```
 
-> TODO: screenshot
-
-### 5. Merge GitOps PR
-
-After creating the environment in [step 4](#4-declare-the-environment-in-the-control-plane), a PR will automatically be generated against the GitOps branch for this new environment. This PR automatically sets up the promoted commit ID and folders for relevant cluster types.
-
-Merge this PR, and the new environment is ready to use.
-
-> TODO: screenshot
+![environment-definition](./images/environment-definition.png)
 
 ## Next Steps
 

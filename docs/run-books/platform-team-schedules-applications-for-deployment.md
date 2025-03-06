@@ -49,6 +49,7 @@ Collect the following values for use later in this run book.
 | `APPLICATION_NAME`    | the application name inside the workload yaml file                      |
 | `KALYPSO_WORKSPACE`   | this is a custom label for grouping workloads within the Kalypso system |
 
+![workload](./images/workload.png)
 
 ## Steps
 

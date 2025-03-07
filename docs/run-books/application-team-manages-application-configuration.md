@@ -28,14 +28,14 @@ Each application consists of 3 git repositories. A source repository, a configur
 Make sure the **config repository** is cloned locally as this is the repository you will submit a change to.
 
 ## Steps
-
+ 
 ### 1. Submit Configuration Change
 
-Locate the appropriate branch and values file inside the configuration repository. The branch name should identify the environment & ring that this application configuration belongs to.
+Locate the appropriate branch and values file inside the configuration repository. The branch name should identify the environment and ring that this application configuration belongs to.
 
-Update the values file to add/remove/modify your desired configuration values. Then, commit the change to the appropriate branch and push it to GitHub to start a deployment to the matching environment.
+Update the values file to add/remove/modify your desired configuration values. Then, create a PR the appropriate branch. Once the PR is merged, it will trigger the deployment to the matching environment.
 
-> TODO: example
+![update-app-config-values](./images/update-app-config-values.png)
 
 ### 2. Deploy Configuration Change via GitOps
 
@@ -54,15 +54,19 @@ Review and merge this pull request to deploy it to the target environment. If yo
 >
 > Changes to configuration are not subjects for promotion and are not labeled as such. These PRs are generated from [Application Team Promotes a Change Through Environments](./application-team-promotes-a-change-through-environments.md).
 >
-> TODO: example screenshot
+> ![not-promoted-pr](./images/not-promoted-pr.png)
 
-> TODO: example
+![not-promoted-pr-details](./images/not-promoted-pr-details.png)
 
 ### 3. Verify Deployment
 
-Once the pull request has merged, we can verify it from the deployment observability dashboards. Navigate to the Cluster State dashboard. The GitOps commit hash you see should match the GitOps commit of the PR that was merged in [step 2](#2-deploy-configuration-change-via-gitops).
+Once the pull request has been merged, we can verify it from the deployment observability dashboards. Navigate to the Cluster State dashboard. The GitOps commit hash you see should match the GitOps commit of the PR that was merged in [step 2](#2-deploy-configuration-change-via-gitops).
 
-> TODO: example
+ Here is a screenshot of the `hello-world` deployment history to the `dev-gray` environment. Note the latest commit hash: `sha1:161b2623...`
+![config-change-dashboard](./images/config-change-dashboard.png)
+
+When we find the GitOps commit for the recently merged pull request, the commit matches: `sha1:161b2623...`. This means the correct commit has been deployed to the cluster.
+![gitops-commit-id](./images/gitops-commit-id.png)  
 
 ## Next Steps
 
@@ -74,4 +78,4 @@ If an issue was discovered in a deployment, and it needs to be reverted, GitOps 
 2. Create a new GitOps PR that reverts the deployment using the "Revert" button.
 3. Review and merge the resulting PR to roll back the release.
 
-> TODO: screenshot
+![revert-config-change](./images/revert-config-change.png)  

@@ -9,7 +9,6 @@
     - [2. (Optional) Install other Components](#2-optional-install-other-components)
   - [Next Steps](#next-steps)
 
-
 ## Prerequisites
 
 ### 1. Provision a Kubernetes Cluster
@@ -44,7 +43,6 @@ This run book assumes an existing Platform GitOps repository is set up. Gather t
 | `GITOPS_REPO`   | The git repository URL for the Platform GitOps repo                    |
 | `GITOPS_BRANCH` | The git branch in the Platform GitOps repo                             |
 | `GITOPS_PATH`   | The file path to monitor on the git branch of the Platform GitOps repo |
-
 
 ## Steps
 
@@ -97,5 +95,3 @@ For Kalypso, only the GitOps agent is required, but other standardized component
 Once all steps have been completed, the cluster is ready to host applications. If the platform GitOps configuration provided in step 1 already existed, the cluster may already be pulling and running applications scheduled for the appropriate environment.
 
 Otherwise, see [Schedule Applications for Deployment onto Clusters](./platform-team-schedules-applications-for-deployment.md) for instructions on how to deploy specific applications to the new cluster.
-
-

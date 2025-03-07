@@ -32,7 +32,6 @@ Collect the following values for use later in this run book.
 | ------------------- | ---------------------------- |
 | `CLUSTER_TYPE_NAME` | The logical name of the cluster (e.g. `Mayberry`) or a group of identical clusters|
 
-
 ### 3. Identify an Application
 
 Finally, identify an existing application to schedule for deployment onto the fleet. Before starting this run book, make sure the application is onboarded by following [Application Team Onboards a New Application](./application-team-onboards-a-new-application.md).

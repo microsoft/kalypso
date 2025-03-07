@@ -130,4 +130,3 @@ This run book provides instructions for creating a new ring for an application. 
 After creating a new ring, only the GitOps manifest files are generated. To actually deploy this ring to a cluster and configure what clusters host applications in this ring, see [Platform Team Onboards a New Cluster](./platform-team-onboards-a-new-cluster.md) and [Platform Team Schedules Applications for Deployment](./platform-team-schedules-applications-for-deployment.md).
 
 Once the ring exists within the promotional sequence, the application will be promoted through this ring. To learn how to promote an application through rings and environments, see [Application Team Promotes a Change Through Environments](./application-team-promotes-a-change-through-environments.md).
-

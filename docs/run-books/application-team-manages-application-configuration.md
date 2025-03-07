@@ -28,7 +28,7 @@ Each application consists of 3 git repositories. A source repository, a configur
 Make sure the **config repository** is cloned locally as this is the repository you will submit a change to.
 
 ## Steps
- 
+
 ### 1. Submit Configuration Change
 
 Locate the appropriate branch and values file inside the configuration repository. The branch name should identify the environment and ring that this application configuration belongs to.

@@ -62,7 +62,7 @@ The following example demonstrates a ConfigMap with platform configurations for 
 
 ![eu-config](./images/eu-config.png)
 
-All configurations that apply to every cluster will be consolidated int final platform-config ConfigMaps in the Platform GitOps repository. 
+All configurations that apply to every cluster will be consolidated int final platform-config ConfigMaps in the Platform GitOps repository.
 
 ### 2. Review and Merge GitOps Pull Request
 

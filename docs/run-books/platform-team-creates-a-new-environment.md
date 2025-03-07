@@ -8,9 +8,7 @@
     - [2. Create a Control Plane Branch](#2-create-a-control-plane-branch)
     - [3. Link Environment in Promotion Sequence](#3-link-environment-in-promotion-sequence)
     - [4. Declare the Environment in the Control Plane](#4-declare-the-environment-in-the-control-plane)
-    - [5. Merge GitOps PR](#5-merge-gitops-pr)
   - [Next Steps](#next-steps)
-
 
 ## Prerequisites
 
@@ -51,7 +49,7 @@ git checkout prevenv
 git checkout -b newenv
 ```
 
-Remove the old tracking information on the new branch. These files will be automatically re-generated in [step 5](#5-merge-gitops-pr).
+Remove the old tracking information on the new branch. These files will be automatically re-generated.
 
 ```sh
 rm -rf .github/tracking

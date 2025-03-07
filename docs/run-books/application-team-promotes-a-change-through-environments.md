@@ -9,7 +9,7 @@
     - [2. Continuous Integration](#2-continuous-integration)
     - [3. Deploying to `dev`](#3-deploying-to-dev)
     - [4. Verify `dev` Deployment](#4-verify-dev-deployment)
-    - [5. Promote from `dev` to `stage`](#5-promote-from-dev-to-staghe)
+    - [5. Promote from `dev` to `stage`](#5-promote-from-dev-to-stage)
     - [6. Deploying to `stage`](#6-deploying-to-stage)
     - [7. Verify `stage` Deployment](#7-verify-stage-deployment)
     - [8. Repeat for Higher Environments](#8-repeat-for-higher-environments)

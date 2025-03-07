@@ -9,9 +9,9 @@
     - [2. Continuous Integration](#2-continuous-integration)
     - [3. Deploying to `dev`](#3-deploying-to-dev)
     - [4. Verify `dev` Deployment](#4-verify-dev-deployment)
-    - [5. Promote from `dev` to `test`](#5-promote-from-dev-to-test)
-    - [6. Deploying to `test`](#6-deploying-to-test)
-    - [7. Verify `test` Deployment](#7-verify-test-deployment)
+    - [5. Promote from `dev` to `stage`](#5-promote-from-dev-to-staghe)
+    - [6. Deploying to `stage`](#6-deploying-to-stage)
+    - [7. Verify `stage` Deployment](#7-verify-stage-deployment)
     - [8. Repeat for Higher Environments](#8-repeat-for-higher-environments)
   - [Next Steps](#next-steps)
     - [Abandoning a Release](#abandoning-a-release)
@@ -19,7 +19,7 @@
 
 ## Overview
 
-This run book describes how to submit an application change and deploy it through environments. In this run book, the example application is deployed first to a `dev` environment and then to `test` before moving to higher environments.
+This run book describes how to submit an application change and deploy it through environments. In this run book, the example application is deployed first to a `dev` environment and then to `stage` before moving to higher environments.
 
 This run book does not include instructions on how to manage application or platform configuration. For those details, see [Application Team Manages Application Configuration](./application-team-manages-application-configuration.md) and [Platform Team Manages Platform Configuration](./platform-team-manages-platform-configuration.md).
 
@@ -32,8 +32,8 @@ A high-level overview of the application promotion flow is shown below.
 3. Continuous deployment generates a pull request automatically against the `dev` environment (the first environment). This pull request is merged manually.
 4. The `dev` clusters see the changes and pull them to run in the cluster using GitOps.
 5. Continuous deployment is triggered for the next environment once the `dev` deployment is confirmed.
-6. Continuous deployment generates another pull request automatically against the next environment, `test`. This pull request is merged manually.
-7. The `test` clusters see the changes and pull them to run in the cluster.
+6. Continuous deployment generates another pull request automatically against the next environment, `stage`. This pull request is merged manually.
+7. The `stage` clusters see the changes and pull them to run in the cluster.
 
 > For more details on the CI/CD flow, see [GitOps CI/CD with GitHub](https://github.com/microsoft/kalypso/blob/main/cicd/readme.md).
 
@@ -55,15 +55,15 @@ The specific steps will vary for each application and change that is made. What 
 
 > Note: Some changes do require updating configuration such as environment variables. This run book focuses on changes to application source. For changes to configuration, you may also need to [Manage Application Configuration](./application-team-manages-application-configuration.md) or [Manage Platform Configuration](./platform-team-manages-platform-configuration.md).
 
-> TODO: example PR
+![pr-to-src-code](./images/pr-to-src-code.png)
 
 ### 2. Continuous Integration
 
-This step should happen automatically when the pull request is merged to the `main` branch and will vary by application. It includes all automated checks and builds for required aritfacts that will be deployed through environments (ex: building and pushing a docker image).
+This step should happen automatically when the pull request is merged to the `main` branch and will vary by application. It includes all automated checks and builds for required artifacts that will be deployed through environments (ex: building and pushing a docker image).
 
 Watch the GitHub Actions tab of your application for the continuous integration workflow.
 
-> TODO: example screenshot
+![ci-pipeline](./images/ci-pipeline.png)
 
 ### 3. Deploying to `dev`
 
@@ -82,37 +82,37 @@ Review and merge this pull request to deploy it to `dev`. If you find any issues
 >
 > Changes to configuration are not subjects for promotion and are not labeled as such. These PRs are generated from [Application Team Manages Application Configuration](./application-team-manages-application-configuration.md).
 >
-> TODO: screenshot example
+> ![pr-promoted](./images/pr-promoted.png)
 
-> TODO: example dev deployment
+![pr-deployment](./images/pr-deployment.png)
 
 ### 4. Verify `dev` Deployment
 
 Once the GitOps PR is merged, `dev` clusters will automatically pull the changes in through Flux. Consult the deployment observability dashboards to watch for this change. You should see the version update in the dev environment.
 
-> TODO: example screenshot
+![deployment-observability-hw-deployed](./images/deployment-observability-hw-deployed.png)
 
-### 5. Promote from `dev` to `test`
+### 5. Promote from `dev` to `stage`
 
-If the deployment to `dev` was successful, the continuous deployment workflow will automatically trigger for the next environment, `test`.
+If the deployment to `dev` was successful, the continuous deployment workflow will automatically trigger for the next environment, `stage`.
 
-Look for another GitOps PR marked `promoted`. This time, it should target the `test` environment.
+Look for another GitOps PR marked `promoted`. This time, it should target the `stage` environment.
 
-> TODO: example
+![pr-deployment-stage](./images/pr-deployment-stage.png)
 
-### 6. Deploying to `test`
+### 6. Deploying to `stage`
 
-Review and merge the GitOps PR for `test`. This will deploy the application to `test` clusters.
+Review and merge the GitOps PR for `stage`. This will deploy the application to `stage` clusters.
 
-### 7. Verify `test` Deployment
+### 7. Verify `stage` Deployment
 
-Monitor the same deployment observability dashboard to watch for this change in the `test` environment.
+Monitor the same deployment observability dashboard to watch for this change in the `stage` environment.
 
-> TODO: example
+![deployment-observability-hw-deployed-stage](./images/deployment-observability-hw-deployed-stage.png)
 
 ### 8. Repeat for Higher Environments
 
-This run book walks through the first 2 environments: `dev` and `test`. However, it is likely that there are more environments eventually leading all the way to `prod`. Steps 5, 6, and 7 will repeat for each ring & environment in the promotion chain, and stop at the final environment.
+This run book walks through the first 2 environments: `dev` and `stage`. However, it is likely that there are more environments eventually leading all the way to `prod`. Steps 5, 6, and 7 will repeat for each ring & environment in the promotion chain, and stop at the final environment.
 
 Application "rings" can also be used to control application release scopes within environments. Applications each define their environments and rings independently, so the exact names may differ by application.
 
@@ -141,4 +141,4 @@ If an issue was discovered in a deployment, and it needs to be reverted, GitOps 
 2. Create a new GitOps PR that reverts the deployment using the "Revert" button.
 3. Review and merge the resulting PR to roll back the release.
 
-> TODO: example
+![revert-pr](./images/revert-pr.png)

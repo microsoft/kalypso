@@ -100,7 +100,7 @@ jobs:
         uses: DariuszPorowski/github-action-gitleaks@v2
         with:
           report_format: sarif
-          config_path: UDMSecretChecks.toml
+          config: UDMSecretChecks.toml
 
       - name: Upload SARIF report to Workflow Artifacts
         uses: actions/upload-artifact@v4

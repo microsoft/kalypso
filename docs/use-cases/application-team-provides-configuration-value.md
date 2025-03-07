@@ -2,12 +2,12 @@
 
 *Preconditions*:
 
-- Application Source repo exists
+- Application Config repo exists
 
 *Postconditions*:
 
-- Configuration value for the deployment target is set in the Application Source repo
+- Configuration value for the deployment target is set in the Application Config repo
 
-Application Source repo contains configuration branches with configuration values for each environment. Each configuration branch contain folders representing deployment targets. Application Team creates a file in a corresponding folder of the configuration branch with the config values. These values are used by the application CI/CD pipeline to generate manifests for this deployment target.
+Application Config repo contains configuration branches with configuration values for each environment. Each configuration branch contain folders representing deployment targets. Application Team creates a file in a corresponding folder of the configuration branch with the config values. These values are used by the application CI/CD pipeline to generate manifests for this deployment target.
 
-Alternatively, Application Team may prefer to use an external storage (e.g. variable groups, key vault, configuration tools, etc.) for the configuration values rather than Git repository.
+> Refer to the runbook [Application Team Manages Application Configuration](../run-books/application-team-manages-application-configuration.md).

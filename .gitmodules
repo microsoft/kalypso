@@ -1,0 +1,3 @@
+[submodule "scheduler"]
+	path = scheduler
+	url = https://github.com/microsoft/kalypso-scheduler

@@ -1,3 +1,6 @@
 [submodule "scheduler"]
 	path = scheduler
 	url = https://github.com/microsoft/kalypso-scheduler
+[submodule "observability-hub"]
+	path = observability-hub
+	url = https://github.com/microsoft/kalypso-observability-hub

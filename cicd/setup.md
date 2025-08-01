@@ -37,9 +37,7 @@ The script requires the following environment variables to be set:
     Variables - R/W
     Workflows - R/W
 
- OPTIONAL:
-
-- AZURE_CREDENTIALS_SP: service principal azure credentials, if not set, the script will create a new service principal with contributor role on the default subscription
+- AZURE_CREDENTIALS_SP: service principal azure credentials
 
 The script will do the following:
 

@@ -5,18 +5,38 @@
 
 # The script requires the following environment variables to be set:
 #     TOKEN: github personal access token with repo access
-# OPTIONAL:
-#     AZURE_CREDENTIALS_SP: service principal azure credentials, if not set, the script will create a new service principal with contributor role on the default subscription
+#     AZURE_CREDENTIALS_SP: service principal azure credentials
 
 set -eo pipefail
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
+# Find templates directory by walking up the directory tree
+find_templates_dir() {
+  local current_dir="$parent_path"
+
+  while [[ "$current_dir" != "/" ]]; do
+    local templates_path="$current_dir/.github/workflows/templates"
+    if [[ -d "$templates_path" ]]; then
+      echo "$templates_path"
+      return 0
+    fi
+    current_dir="$(dirname "$current_dir")"
+  done
+
+  echo "Error: Could not find .github/workflows/templates directory" >&2
+  echo "Searched upward from: $parent_path" >&2
+  echo "No .github/workflows/templates directory found in any parent directory" >&2
+  exit 1
+}
+
+templates_dir=$(find_templates_dir)
+
 while getopts o:r:s:e:d: flag
 do
-    case "${flag}" in   
+    case "${flag}" in
         o) ORG=${OPTARG};;
         r) REPO=${OPTARG};;
-        e) ENV=${OPTARG};; 
+        e) ENV=${OPTARG};;
     esac
 done
 
@@ -25,16 +45,16 @@ print_usage() {
     printf "\nExample: setup.sh -o eedorenko -r hello-world -e dev \n"
     printf "The script requires the following environment variables to be set: \n"
     printf " - TOKEN: github personal access token with repo access \n"
-    printf " OPTIONAL: \n"
-    printf " - AZURE_CREDENTIALS_SP: service principal azure credentials, if not set, the script will create a new service principal with contributor role on the default subscription."
+    printf " - AZURE_CREDENTIALS_SP: service principal azure credentials \n"
 
     exit 1
 }
 
+
 check_gh_username() {
   ghusername=$(git config --get user.name) || true
   ghuseremail=$(git config --get user.email) || true
-  
+
   if [ -z "$ghusername" ] || [ -z "$ghuseremail" ];
   then
     echo "Please configure your git username and email before running this script"
@@ -45,7 +65,7 @@ check_gh_username() {
 }
 
 
-check_prerequisites() {  
+check_prerequisites() {
   type -p gh >/dev/null
   type -p git >/dev/null
 }
@@ -61,26 +81,9 @@ authenticate_gh() {
   gh auth setup-git
 }
 
-check_az_sub() {
-  if [ -z "$AZURE_CREDENTIALS_SP" ]
-  then
-    subid=$(az account list --query "[?isDefault].id" -o tsv)
-    if [ -z "$subid" ]
-    then
-        echo "Please login to Azure before running this script"
-        echo "az login"
-        exit 1
-    fi
-    AZURE_CREDENTIALS_SP=$(az ad sp create-for-rbac --name kalypso-$REPO --role contributor --scopes /subscriptions/$subid --sdk-auth)    
-    echo "Created service principal kalypso-$REPO with contributor role on subscription $subid: $AZURE_CREDENTIALS_SP "
-  fi    
-} 
-  
-  
-  
 
 
-if [ -z $ORG ] || [ -z $REPO ] || [ -z $ENV ] || [ -z $TOKEN ];
+if [ -z "$ORG" ] || [ -z "$REPO" ] || [ -z "$ENV" ] || [ -z "$TOKEN" ] || [ -z "$AZURE_CREDENTIALS_SP" ];
 then
  print_usage
 fi
@@ -94,24 +97,24 @@ check_repo() {
     repo_name=$1
     gh repo view $repo_name >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "Repository $repo_name already exists"        
+        echo "Repository $repo_name already exists"
         return 0
     else
         return 1
     fi
 }
 
-create_repo() {  
-  repo_name=$1  
+create_repo() {
+  repo_name=$1
   echo "Repository $repo_name does not exist"
-  gh repo create $repo_name --private  
+  gh repo create $repo_name --private
   echo "Created Repository $repo_name"
   sleep 3
 }
 
 ensure_gitops_repo() {
     rm -rf gitops
-    check_repo $gitops_repo_name || create_repo $gitops_repo_name    
+    check_repo $gitops_repo_name || create_repo $gitops_repo_name
     git clone $gh_prefix/$gitops_repo_name gitops
 }
 
@@ -124,7 +127,7 @@ ensure_branch() {
         echo "Branch $branch_name already exists"
         git checkout $branch_name
     fi
-} 
+}
 
 configure_gitops_repo() {
     echo "Configuring Repository "$gitops_repo_name
@@ -139,43 +142,43 @@ configure_gitops_repo() {
     ensure_branch $ENV
 
     mkdir -p .github/workflows
-    cp $parent_path/../.github/workflows/templates/notify-on-pr.yml .github/workflows/
-    
+    cp "$templates_dir/notify-on-pr.yml" .github/workflows/
+
     mkdir -p .github/workflows/utils
-    cp -r $parent_path/../.github/workflows/templates/utils/get-tracking-info.sh .github/workflows/utils/
+    cp -r "$templates_dir/utils/get-tracking-info.sh" .github/workflows/utils/
 
     git add .
     git diff-index --quiet HEAD || git commit -m $ENV
     git push origin $ENV
 
-    popd 
+    popd
     rm -rf gitops
 }
 
-ensure_configs_repo() {    
+ensure_configs_repo() {
     rm -rf configs
-    check_repo $configs_repo_name || create_repo $configs_repo_name    
+    check_repo $configs_repo_name || create_repo $configs_repo_name
     git clone $gh_prefix/$configs_repo_name configs
 }
 
-ensure_src_repo() {    
+ensure_src_repo() {
     rm -rf src
     check_repo $src_repo_name || create_repo $src_repo_name
     git clone $gh_prefix/$src_repo_name src
     pushd src
     if  (( $(git branch -a | grep "remotes/origin/main" | wc -l) == 0)) ; then
-        echo "# $src_repo_name" >> README.md                
+        echo "# $src_repo_name" >> README.md
         git add .
-        git commit -m 'first commit'        
+        git commit -m 'first commit'
         git branch -M main
-        git push -u origin main        
+        git push -u origin main
     fi
     popd
 }
 
 
 configure_configs_repo() {
-    echo "Configuring Repository "$configs_repo_name  
+    echo "Configuring Repository "$configs_repo_name
 
     gh variable set MANIFESTS_REPO -b $gitops_repo_name -R $configs_repo_name
     gh variable set SRC_REPO -b $src_repo_name -R $configs_repo_name
@@ -193,15 +196,15 @@ configure_configs_repo() {
     fi
 
     mkdir -p .github/workflows
-    cp $parent_path/../.github/workflows/templates/notify-on-config-change.yml .github/workflows/
+    cp "$templates_dir/notify-on-config-change.yml" .github/workflows/
 
     git add .
     git diff-index --quiet HEAD || git commit -m $ENV
     git push origin $ENV
-    
-    popd 
+
+    popd
     rm -rf configs
-    
+
 }
 
 setup_gitops_repo() {
@@ -216,30 +219,30 @@ setup_configs_repo() {
 
 
 configure_src_repo() {
-    echo "Configuring Repository "$src_repo_name 
-    
+    echo "Configuring Repository "$src_repo_name
+
     gh variable set MANIFESTS_REPO -b $gitops_repo_name -R $src_repo_name
     gh variable set CONFIGS_REPO -b $configs_repo_name -R $src_repo_name
     gh secret set CD_BOOTSTRAP_TOKEN -b $TOKEN -R $src_repo_name
-    gh secret set AZURE_CREDENTIALS_SP -b "$AZURE_CREDENTIALS_SP" -R $src_repo_name    
+    gh secret set AZURE_CREDENTIALS_SP -b "$AZURE_CREDENTIALS_SP" -R $src_repo_name
 
     if gh variable list -R $src_repo_name | grep START_ENVIRONMENT; then
         echo "START_ENVIRONMENT already exists"
     else
         gh variable set START_ENVIRONMENT -b $ENV -R $src_repo_name
-    fi 
+    fi
 
 
     pushd src
-    
+
     new_branch_name=feature/cd-setup
     ensure_branch $new_branch_name
 
     mkdir -p .github/workflows
-    cp $parent_path/../.github/workflows/templates/ci.yml .github/workflows/
-    cp $parent_path/../.github/workflows/templates/cd.yml .github/workflows/
-    cp $parent_path/../.github/workflows/templates/post-deployment.yml .github/workflows/
-    cp -r $parent_path/../.github/workflows/templates/utils .github/workflows/
+    cp "$templates_dir/ci.yml" .github/workflows/
+    cp "$templates_dir/cd.yml" .github/workflows/
+    cp "$templates_dir/post-deployment.yml" .github/workflows/
+    cp -r "$templates_dir/utils" .github/workflows/
     rm .github/workflows/utils/get-tracking-info.sh
 
     git add .
@@ -250,7 +253,7 @@ configure_src_repo() {
         gh pr create --base main --head $new_branch_name --title "GitOps CD setup" --body "GH Actions workflows for CD setup <br /> Utility scripts for GH Actions workflows"
     fi
 
-    popd 
+    popd
     rm -rf src
 
 }
@@ -265,7 +268,6 @@ setup_src_repo() {
 check_prerequisites || print_prerequisites
 
 check_gh_username
-check_az_sub
 authenticate_gh
 
 setup_gitops_repo

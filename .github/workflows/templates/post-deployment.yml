@@ -74,7 +74,7 @@ jobs:
     - name: Promote to Next Environment
       if: inputs.promotion == 'y' && vars.NEXT_ENVIRONMENT != ''
       run: |
-          gh workflow run cd.yml -f environment="$NEXT_ENVIRONMENT" -f commit_id="$PROMOTED_COMMIT_ID" -f image_tag="$IMAGE_TAG" -f version="$VERSION"
+          gh workflow run deploy.yml -f environment="$NEXT_ENVIRONMENT" -f commit_id="$PROMOTED_COMMIT_ID" -f image_tag="$IMAGE_TAG" -f version="$VERSION"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NEXT_ENVIRONMENT: ${{ vars.NEXT_ENVIRONMENT }}
@@ -86,12 +86,13 @@ jobs:
     - name: Update Positive Deployed Commit Status
       if: inputs.promotion == 'y' 
       run: |
-          .github/workflows/utils/update-status.sh "success" "Deployed: $COMMIT_ID" "$ACTIVE_ENVIRONMENT" 
+          .github/workflows/utils/update-status.sh "success" "Deployed $VERSION: $COMMIT_ID" "$ACTIVE_ENVIRONMENT" 
       env:
         GH_TOKEN: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
         PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
         ACTIVE_ENVIRONMENT: ${{ inputs.environment }}
-        COMMIT_ID: ${{ inputs.commit_id }}        
+        COMMIT_ID: ${{ inputs.commit_id }}
+        VERSION: ${{ inputs.version }}        
 
     - name: Update Positive Configured Commit Status
       if: inputs.promotion != 'y' 

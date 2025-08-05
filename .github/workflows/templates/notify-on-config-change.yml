@@ -32,7 +32,7 @@ jobs:
   
     - name: Start CD
       run: |
-          gh workflow run cd.yml -f environment="$ACTIVE_ENVIRONMENT" -f commit_id="$PROMOTED_COMMIT_ID" -f promotion=n -f image_tag="$IMAGE_TAG" -f version="$VERSION" -r main --repo "$SRC_REPO"   
+          gh workflow run deploy.yml -f environment="$ACTIVE_ENVIRONMENT" -f commit_id="$PROMOTED_COMMIT_ID" -f promotion=n -f image_tag="$IMAGE_TAG" -f version="$VERSION" -r main --repo "$SRC_REPO"   
       env:
         GH_TOKEN: ${{ secrets.CD_BOOTSTRAP_TOKEN }}
         ACTIVE_ENVIRONMENT: ${{ github.ref_name }}

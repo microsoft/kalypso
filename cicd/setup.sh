@@ -240,7 +240,7 @@ configure_src_repo() {
 
     mkdir -p .github/workflows
     cp "$templates_dir/ci.yml" .github/workflows/
-    cp "$templates_dir/cd.yml" .github/workflows/
+    cp "$templates_dir/deploy.yml" .github/workflows/
     cp "$templates_dir/post-deployment.yml" .github/workflows/
     cp -r "$templates_dir/utils" .github/workflows/
     rm .github/workflows/utils/get-tracking-info.sh

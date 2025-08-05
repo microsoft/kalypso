@@ -12,7 +12,7 @@ The promotional flow is implemented with a chain of GiHub Actions Workflows:
 
 ### Deploy
 
-[The `Deploy` workflow](../.github/workflows/templates/cd.yml) takes the Helm manifest templates from the source repo according to the source commit id. It generates K8s manifests applying config values from the Config Git repo. It takes the config values from a branch corresponding to the current environment (e.g. `dev`). Having manifests generated, it creates a PR to the GitOps repository on the processed environment/ring branch (e.g. `dev`). The workflow updates the Git commit status specifying that the change has been promoted to the environment.
+[The `Deploy` workflow](../.github/workflows/templates/deploy.yml) takes the Helm manifest templates from the source repo according to the source commit id. It generates K8s manifests applying config values from the Config Git repo. It takes the config values from a branch corresponding to the current environment (e.g. `dev`). Having manifests generated, it creates a PR to the GitOps repository on the processed environment/ring branch (e.g. `dev`). The workflow updates the Git commit status specifying that the change has been promoted to the environment.
 
 ### On PR Merge
 

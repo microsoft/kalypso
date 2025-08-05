@@ -101,7 +101,7 @@ jobs:
 
       - name: Update Commit Status
         run: |
-            .github/workflows/utils/update-status.sh "pending" "Promoted" "$ACTIVE_ENVIRONMENT"        
+            .github/workflows/utils/update-status.sh "pending" "Promoted $VERSION-sj-$IMAGE_TAG" "$ACTIVE_ENVIRONMENT"        
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROMOTED_COMMIT_ID: ${{ inputs.commit_id }}

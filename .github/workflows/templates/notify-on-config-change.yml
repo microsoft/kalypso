@@ -6,7 +6,11 @@ name: notify-on-config-change
 on:
   push:
     branches:
-      - '*'
+      - 'dev*'
+      - 'qa*'
+      - 'test*'
+      - 'stage*'
+      - 'prod*'
       - '!main'
 
 jobs:

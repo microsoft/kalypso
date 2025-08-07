@@ -190,9 +190,9 @@ configure_configs_repo() {
     ensure_branch $ENV
 
     if  (( $(find . -mindepth 1 -maxdepth 1 -type d ! -path '*.git*' | wc -l) == 0)) ; then
-        mkdir -p rename_me
-        touch rename_me/values.yaml
-        echo "Application config values for a deployment target" > rename_me/Readme.md
+        mkdir -p $REPO
+        touch $REPO/values.yaml
+        echo "Application config values for a deployment target" > $REPO/Readme.md
     fi
 
     mkdir -p .github/workflows

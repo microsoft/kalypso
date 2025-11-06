@@ -13,6 +13,8 @@ do
     esac
 done
 
+# Comment out the following line to opt out telemetry collection
+export AZURE_HTTP_USER_AGENT="acce1e78-01E3-4354-9356-B033C290E069" 
 
 gh_prefix="https://github.com"
 appsrc_repo_name=$ORG/$PREFIX

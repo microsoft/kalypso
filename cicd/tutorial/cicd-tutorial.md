@@ -196,9 +196,9 @@ When no longer needed, delete the resources that you created. To do so, run the 
 ./deploy.sh -d -p <prefix. e.g. hello-world> -o <GitHub org. e.g. eedorenko> -t <GitHub token> -l <azure-location. e.g. westus2> 
 ```
 
-## Opt out Telemetry
+## Opt Out of Telemetry
 
-To opt out telemetry collection on the tutorial usage, comment out the following line in [deploy.sh](./deploy.sh).
+To opt out of telemetry collection for tutorial usage, comment out the following line in [deploy.sh](./deploy.sh).
 
 ```bash
 export AZURE_HTTP_USER_AGENT=...

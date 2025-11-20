@@ -25,21 +25,21 @@ export LOG_LEVEL=3  # DEBUG level
 
 **Symptoms**:
 
-```
+```text
 ERROR [prereq]: kubectl is not installed or version is too old (required: 1.20.0)
 ```
 
 **Solution**:
 
 1. Check the missing tool in the error message
-2. Install or upgrade the tool using instructions in [prerequisites.md](prerequisites.md)
-3. Verify installation: `<tool> --version`
+1. Install or upgrade the tool using instructions in [prerequisites.md](prerequisites.md)
+1. Verify installation: `<tool> --version`
 
 ### Issue: "Azure authentication required"
 
 **Symptoms**:
 
-```
+```text
 ERROR [prereq]: Not logged in to Azure
 ERROR [prereq]: Azure authentication required. Please run 'az login' first.
 ```
@@ -67,7 +67,7 @@ Then run bootstrap again.
 
 **Symptoms**:
 
-```
+```text
 ERROR [prereq]: Invalid GitHub token
 ```
 
@@ -79,13 +79,13 @@ ERROR [prereq]: Invalid GitHub token
 echo $GITHUB_TOKEN
 ```
 
-2. Verify token is valid:
+1. Verify token is valid:
 
 ```bash
 curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
 ```
 
-3. Create new token if needed:
+1. Create new token if needed:
    - Go to <https://github.com/settings/tokens>
    - Generate token with `repo`, `workflow`, `admin:org` scopes
    - Export new token: `export GITHUB_TOKEN="new-token"`
@@ -94,7 +94,7 @@ curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
 
 **Symptoms**:
 
-```
+```text
 ERROR [cluster]: Failed to create AKS cluster
 Operation failed with status: 'QuotaExceeded'
 ```
@@ -107,12 +107,12 @@ Operation failed with status: 'QuotaExceeded'
 az vm list-usage --location eastus --output table
 ```
 
-2. Request quota increase:
+1. Request quota increase:
    - Azure Portal → Subscriptions → Usage + quotas
    - Select the VM family and region
    - Request increase
 
-3. Or use smaller VM size:
+1. Or use smaller VM size:
 
 ```bash
 ./bootstrap.sh --node-size Standard_B2s --node-count 2
@@ -122,7 +122,7 @@ az vm list-usage --location eastus --output table
 
 **Symptoms**:
 
-```
+```text
 ERROR [repo]: Failed to create repository
 ```
 
@@ -132,11 +132,11 @@ ERROR [repo]: Failed to create repository
    - Delete existing repository via GitHub UI
    - Or use existing repo: `--control-plane-repo URL`
 
-2. **Insufficient permissions**:
+1. **Insufficient permissions**:
    - Verify token has `repo` scope
    - For organization: verify token has `admin:org` scope and you're an org member
 
-3. **API rate limit**:
+1. **API rate limit**:
    - Wait for rate limit reset (check headers in verbose mode)
    - Use authenticated requests (token should be set)
 
@@ -144,7 +144,7 @@ ERROR [repo]: Failed to create repository
 
 **Symptoms**:
 
-```
+```text
 ERROR [install]: Helm installation failed
 Error: timed out waiting for the condition
 ```
@@ -158,17 +158,17 @@ kubectl get nodes
 kubectl top nodes  # Requires metrics-server
 ```
 
-2. **Increase timeout**:
+1. **Increase timeout**:
 Edit `lib/install.sh` and increase timeout from 5m to 10m
 
-3. **Check pod status**:
+1. **Check pod status**:
 
 ```bash
 kubectl get pods -n kalypso-system
 kubectl describe pod <pod-name> -n kalypso-system
 ```
 
-4. **Check events**:
+1. **Check events**:
 
 ```bash
 kubectl get events -n kalypso-system --sort-by='.lastTimestamp'
@@ -178,7 +178,7 @@ kubectl get events -n kalypso-system --sort-by='.lastTimestamp'
 
 **Symptoms**:
 
-```
+```text
 ERROR [cluster]: Cluster failed to become ready
 ```
 
@@ -191,19 +191,19 @@ kubectl get nodes
 kubectl describe node <node-name>
 ```
 
-2. **Check system pods**:
+1. **Check system pods**:
 
 ```bash
 kubectl get pods -n kube-system
 ```
 
-3. **Check Azure status**:
+1. **Check Azure status**:
 
 ```bash
 az aks show --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 ```
 
-4. **Wait longer**:
+1. **Wait longer**:
 
 - Cluster creation can take 10-15 minutes
 - System pods can take additional 5 minutes
@@ -212,7 +212,7 @@ az aks show --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 
 **Symptoms**:
 
-```
+```text
 ERROR [config]: Must specify either --create-cluster or --use-cluster
 ```
 

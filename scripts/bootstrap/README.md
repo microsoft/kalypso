@@ -4,7 +4,7 @@ This directory contains the Kalypso Scheduler bootstrapping script and its suppo
 
 ## Directory Structure
 
-```
+```text
 scripts/bootstrap/
 ├── bootstrap.sh              # Main entry point
 ├── lib/                      # Library modules

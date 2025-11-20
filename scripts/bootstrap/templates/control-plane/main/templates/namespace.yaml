@@ -1,0 +1,30 @@
+apiVersion: scheduler.kalypso.io/v1alpha1
+kind: Template
+metadata:
+  labels:
+    app.kubernetes.io/name: default
+  name: default
+spec:
+  type: namespace
+  manifests:
+    - |
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ .Namespace}}" 
+        labels:
+          environment: "{{ .Environment}}"
+          workspace: "{{ .Workspace}}"
+          workload: "{{ .Workload}}"
+          deploymentTarget: "{{ .DeploymentTargetName}}"
+    - |
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ .Workload}}-sa"
+        namespace: "{{ .Namespace}}"
+      {{if .ConfigData.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .ConfigData.imagePullSecrets }}
+      {{end}}
+

@@ -30,7 +30,7 @@ Collect the following values for use later in this run book.
 
 | Variable            | Description                                                                         |
 | ------------------- | ----------------------------------------------------------------------------------- |
-| `CLUSTER_TYPE_NAME` | The logical name of the cluster (e.g. `Mayberry`) or a group of identical clusters |
+| `CLUSTER_TYPE_NAME` | The logical name of the cluster (e.g. `Mayberry`) or a group of identical clusters|
 
 ### 3. Identify an Application
 

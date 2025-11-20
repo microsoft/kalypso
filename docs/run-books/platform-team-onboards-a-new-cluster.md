@@ -29,7 +29,7 @@ Collect the following values for use in this runbook.
 | `RESOURCE_GROUP_NAME` | The name of the resource group that the Kubernetes cluster is in                                                    |
 | `SUBSCRIPTION`        | The name of the subscription that the Kubernetes cluster is in                                                      |
 | `CLUSTER_NAME`        | The name of the Kubernetes cluster resource                                                                         |
-| `NAMESPACE`           | The Kubernetes namespace to deploy GitOps configuration into                                                         |
+| `NAMESPACE`           | The Kubernetes namespace to deploy GitOps configuration into                                                        |
 | `CLUSTER_TYPE`        | `connectedClusters` if this is an Arc-connected cluster, `managedClusters` if this is an AKS cluster hosted in Azure |
 
 ### 2. Gather GitOps Details

@@ -1,0 +1,8 @@
+apiVersion: scheduler.kalypso.io/v1alpha1
+kind: GitOpsRepo
+metadata:
+  name: dev
+spec:
+  repo: ${GITOPS_REPO_URL}
+  branch: dev
+  path: .

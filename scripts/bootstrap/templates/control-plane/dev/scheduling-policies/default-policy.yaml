@@ -1,0 +1,10 @@
+apiVersion: scheduler.kalypso.io/v1alpha1
+kind: SchedulingPolicy
+metadata:
+  name: default-policy
+spec:
+  deploymentTargetSelector:
+    labelSelector:
+      matchLabels: {}
+  clusterTypeSelector:
+    labelSelector: {}

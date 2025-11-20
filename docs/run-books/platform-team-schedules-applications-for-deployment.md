@@ -28,9 +28,9 @@ The clusters compose the fleet, and the applications are the workloads that will
 
 Collect the following values for use later in this run book.
 
-| Variable            | Description                  |
-| ------------------- | ---------------------------- |
-| `CLUSTER_TYPE_NAME` | The logical name of the cluster (e.g. `Mayberry`) or a group of identical clusters|
+| Variable            | Description                                                                         |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| `CLUSTER_TYPE_NAME` | The logical name of the cluster (e.g. `Mayberry`) or a group of identical clusters  |
 
 ### 3. Identify an Application
 

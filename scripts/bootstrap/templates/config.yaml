@@ -1,0 +1,54 @@
+# Kalypso Bootstrap Configuration Template
+#
+# This file provides a template for configuring the Kalypso bootstrap script.
+# Copy this file and customize it for your environment.
+#
+# Usage: ./bootstrap.sh --config <path-to-this-file>
+
+# Cluster Configuration
+cluster:
+  # Name of the AKS cluster
+  # Used for both creating new clusters and referencing existing ones
+  name: kalypso-cluster
+  
+  # Azure resource group name
+  # Will be created if it doesn't exist when creating a new cluster
+  resourceGroup: kalypso-rg
+  
+  # Azure region/location for new cluster
+  # Examples: eastus, westus2, northeurope, southeastasia
+  location: eastus
+  
+  # Number of nodes in the cluster
+  # Recommended: 3-5 for production, 1-2 for development
+  nodeCount: 3
+  
+  # Azure VM size for cluster nodes
+  # Examples:
+  #   - Standard_B2s (2 vCPU, 4 GiB) - Burstable, good for dev
+  #   - Standard_DS2_v2 (2 vCPU, 7 GiB) - General purpose (default)
+  #   - Standard_DS3_v2 (4 vCPU, 14 GiB) - More resources
+  #   - Standard_D4s_v3 (4 vCPU, 16 GiB) - Latest generation
+  nodeSize: Standard_DS2_v2
+
+# Repository Configuration
+repositories:
+  # Control plane repository URL
+  # Leave empty to create a new repository
+  # Or provide URL to use existing repository:
+  # Example: https://github.com/myorg/kalypso-control-plane
+  controlPlane: ""
+  
+  # GitOps repository URL
+  # Leave empty to create a new repository
+  # Or provide URL to use existing repository:
+  # Example: https://github.com/myorg/kalypso-gitops
+  gitops: ""
+
+# GitHub Configuration
+github:
+  # GitHub organization name (optional)
+  # Leave empty to create repositories in your personal account
+  # Provide organization name to create repositories in an organization
+  # Example: my-organization
+  org: ""

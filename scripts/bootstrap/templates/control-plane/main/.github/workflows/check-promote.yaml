@@ -1,0 +1,91 @@
+name: checkpromote
+
+on:
+  workflow_dispatch:
+    inputs:
+      promoted_commit_id:
+        description: 'Promoted Commit Id from Main'
+        required: false
+        type: string
+      environment:
+        required: true
+        type: string
+      commit_id:
+        required: true
+        type: string
+
+permissions: write-all
+
+jobs:
+  check_and_promote:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps: 
+
+    - name: Checkout Source
+      uses: actions/checkout@v2.3.4
+
+
+    - name: Update Commit Status
+      if: inputs.promoted_commit_id != ''
+      run: |
+          .github/workflows/utils/update-status.sh pending Deploying "$ENVIRONMENT environment"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ENVIRONMENT: ${{ inputs.environment }}
+
+    # - name: Wait for deployment to complete   
+    #   run: |
+    #       .github/workflows/utils/wait-for-deployment.sh -r https://github.com/$GITOPS_REPO -b $ENVIRONMENT -c $COMMIT_ID
+    #   env:
+    #     GITOPS_REPO: ${{ secrets.GITOPS_REPO }}
+    #     ENVIRONMENT: ${{ inputs.environment }}
+    #     COMMIT_ID: ${{ inputs.commit_id }}
+
+
+    - name: Run postdeployment activities   
+      run: |
+          echo "Runinig..."
+      env:
+        NEXT_ENVIRONMENT: ${{ secrets.NEXT_ENVIRONMENT }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+
+    - name: Update Pending Commit Status
+      if: inputs.promoted_commit_id != '' && env.NEXT_ENVIRONMENT != ''
+      run: |
+          .github/workflows/utils/update-status.sh "pending" "Deployed" "$ENVIRONMENT environment"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ENVIRONMENT: ${{ inputs.environment }}        
+
+    - name: Update Positive Commit Status
+      if: inputs.promoted_commit_id != '' && env.NEXT_ENVIRONMENT == ''
+      run: |
+          .github/workflows/utils/update-status.sh "success" "Deployed" "$ENVIRONMENT environment"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ENVIRONMENT: ${{ inputs.environment }}        
+
+    - name: Update Negative Commit Status
+      if: failure() && inputs.promoted_commit_id != ''
+      run: |      
+          .github/workflows/utils/update-status.sh "failure" "Failed to deploy" "$ENVIRONMENT environment"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ENVIRONMENT: ${{ inputs.environment }}              
+
+
+    - name: Start CD
+      if: inputs.promoted_commit_id != '' && env.NEXT_ENVIRONMENT != ''
+      run: |
+          gh workflow run cd.yaml -f environment=$NEXT_ENVIRONMENT -f promoted_commit_id=$PROMOTED_COMMIT_ID      
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NEXT_ENVIRONMENT: ${{ secrets.NEXT_ENVIRONMENT }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        
+

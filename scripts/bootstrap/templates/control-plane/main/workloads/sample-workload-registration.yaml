@@ -1,0 +1,10 @@
+apiVersion: scheduler.kalypso.io/v1alpha1
+kind: WorkloadRegistration
+metadata:
+  name: sample-workload
+spec:
+  workload:
+    repo: https://github.com/example/sample-app-manifests
+    branch: main
+    path: ./workload
+  workspace: sample-workspace

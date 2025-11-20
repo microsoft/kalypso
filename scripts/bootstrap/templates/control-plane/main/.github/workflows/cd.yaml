@@ -1,0 +1,53 @@
+name: cd
+
+on:
+  workflow_dispatch:
+    inputs:
+      promoted_commit_id:
+        description: 'Promoted Commit Id from Main'
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+
+permissions: write-all  
+
+jobs:
+  promote_to_environment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v2.3.4
+
+    - name: Save Promoted Commit Id 
+      run: |
+         # echo "$COMMIT_ID" > Promoted_Commit_Id
+         ./save-promoted-commit.sh base-repo.yaml
+         cat base-repo.yaml 
+      env:
+        promoted_commit: ${{ inputs.promoted_commit_id }}
+        repo: ${{ github.repository }}
+        branch: ${{ github.ref_name }}
+      working-directory: .github/workflows/utils
+
+    - name: Push Promoted Commit Id to Environment branch
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.GITOPS_REPO_TOKEN }}
+      with:
+        source_file: '.github/workflows/utils/base-repo.yaml'
+        destination_repo: ${{ github.repository }}
+        destination_folder: '.'
+        destination_branch: ${{ inputs.environment }}
+        user_email: 'agent@gitops.com'
+        user_name: 'Git Ops'
+        commit_message: 'Promoting Commit_Id to the environment'
+
+    - name: Update Commit Status
+      run: |
+          .github/workflows/utils/update-status.sh "pending" "Promoted" "$ENVIRONMENT environment"      
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PROMOTED_COMMIT_ID: ${{ inputs.promoted_commit_id }}
+        ENVIRONMENT: ${{ inputs.environment }}

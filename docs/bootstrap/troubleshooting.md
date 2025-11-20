@@ -441,6 +441,4 @@ Before reporting an issue, verify:
 ## Additional Resources
 
 - [Prerequisites](prerequisites.md)
-- [Main Documentation](README.md)
 - [Quickstart Guide](quickstart.md)
-- [Kalypso Scheduler Documentation](../../README.md)

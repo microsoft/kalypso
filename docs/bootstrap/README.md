@@ -338,8 +338,8 @@ See [troubleshooting.md](troubleshooting.md) for common issues and solutions.
 
 For issues and questions:
 
-- GitHub Issues: <https://github.com/microsoft/kalypso-scheduler/issues>
-- Documentation: <https://github.com/microsoft/kalypso-scheduler/docs>
+- GitHub Issues: <https://github.com/microsoft/kalypso/issues>
+- Documentation: <https://github.com/microsoft/kalypso/docs>
 
 ## License
 

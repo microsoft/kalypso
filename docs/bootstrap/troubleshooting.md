@@ -24,11 +24,13 @@ export LOG_LEVEL=3  # DEBUG level
 ### Issue: Script fails with "Prerequisites check failed"
 
 **Symptoms**:
+
 ```
 ERROR [prereq]: kubectl is not installed or version is too old (required: 1.20.0)
 ```
 
 **Solution**:
+
 1. Check the missing tool in the error message
 2. Install or upgrade the tool using instructions in [prerequisites.md](prerequisites.md)
 3. Verify installation: `<tool> --version`
@@ -36,6 +38,7 @@ ERROR [prereq]: kubectl is not installed or version is too old (required: 1.20.0
 ### Issue: "Azure authentication required"
 
 **Symptoms**:
+
 ```
 ERROR [prereq]: Not logged in to Azure
 ERROR [prereq]: Azure authentication required. Please run 'az login' first.
@@ -44,11 +47,13 @@ ERROR [prereq]: Azure authentication required. Please run 'az login' first.
 **Solution**:
 
 Interactive:
+
 ```bash
 az login
 ```
 
 Service Principal:
+
 ```bash
 az login --service-principal \
   --username $AZURE_CLIENT_ID \
@@ -61,6 +66,7 @@ Then run bootstrap again.
 ### Issue: "Invalid GitHub token"
 
 **Symptoms**:
+
 ```
 ERROR [prereq]: Invalid GitHub token
 ```
@@ -68,23 +74,26 @@ ERROR [prereq]: Invalid GitHub token
 **Solution**:
 
 1. Check token is set:
+
 ```bash
 echo $GITHUB_TOKEN
 ```
 
 2. Verify token is valid:
+
 ```bash
 curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user
 ```
 
 3. Create new token if needed:
-   - Go to https://github.com/settings/tokens
+   - Go to <https://github.com/settings/tokens>
    - Generate token with `repo`, `workflow`, `admin:org` scopes
    - Export new token: `export GITHUB_TOKEN="new-token"`
 
 ### Issue: Cluster creation fails with quota exceeded
 
 **Symptoms**:
+
 ```
 ERROR [cluster]: Failed to create AKS cluster
 Operation failed with status: 'QuotaExceeded'
@@ -93,6 +102,7 @@ Operation failed with status: 'QuotaExceeded'
 **Solution**:
 
 1. Check your quota:
+
 ```bash
 az vm list-usage --location eastus --output table
 ```
@@ -103,6 +113,7 @@ az vm list-usage --location eastus --output table
    - Request increase
 
 3. Or use smaller VM size:
+
 ```bash
 ./bootstrap.sh --node-size Standard_B2s --node-count 2
 ```
@@ -110,6 +121,7 @@ az vm list-usage --location eastus --output table
 ### Issue: Repository creation fails
 
 **Symptoms**:
+
 ```
 ERROR [repo]: Failed to create repository
 ```
@@ -131,6 +143,7 @@ ERROR [repo]: Failed to create repository
 ### Issue: Helm installation fails
 
 **Symptoms**:
+
 ```
 ERROR [install]: Helm installation failed
 Error: timed out waiting for the condition
@@ -139,6 +152,7 @@ Error: timed out waiting for the condition
 **Solutions**:
 
 1. **Check cluster resources**:
+
 ```bash
 kubectl get nodes
 kubectl top nodes  # Requires metrics-server
@@ -148,12 +162,14 @@ kubectl top nodes  # Requires metrics-server
 Edit `lib/install.sh` and increase timeout from 5m to 10m
 
 3. **Check pod status**:
+
 ```bash
 kubectl get pods -n kalypso-system
 kubectl describe pod <pod-name> -n kalypso-system
 ```
 
 4. **Check events**:
+
 ```bash
 kubectl get events -n kalypso-system --sort-by='.lastTimestamp'
 ```
@@ -161,6 +177,7 @@ kubectl get events -n kalypso-system --sort-by='.lastTimestamp'
 ### Issue: Cluster not ready timeout
 
 **Symptoms**:
+
 ```
 ERROR [cluster]: Cluster failed to become ready
 ```
@@ -168,28 +185,33 @@ ERROR [cluster]: Cluster failed to become ready
 **Solutions**:
 
 1. **Check node status**:
+
 ```bash
 kubectl get nodes
 kubectl describe node <node-name>
 ```
 
 2. **Check system pods**:
+
 ```bash
 kubectl get pods -n kube-system
 ```
 
 3. **Check Azure status**:
+
 ```bash
 az aks show --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 ```
 
 4. **Wait longer**:
+
 - Cluster creation can take 10-15 minutes
 - System pods can take additional 5 minutes
 
 ### Issue: Non-interactive mode requires configuration
 
 **Symptoms**:
+
 ```
 ERROR [config]: Must specify either --create-cluster or --use-cluster
 ```
@@ -208,6 +230,7 @@ Provide all required configuration:
 ```
 
 Or use config file:
+
 ```bash
 ./bootstrap.sh --config config.yaml --non-interactive
 ```
@@ -289,11 +312,13 @@ az group delete \
 ### Delete GitHub Repositories
 
 Via GitHub CLI:
+
 ```bash
 gh repo delete <owner>/<repo> --yes
 ```
 
 Via API:
+
 ```bash
 curl -X DELETE \
   -H "Authorization: token $GITHUB_TOKEN" \
@@ -343,7 +368,7 @@ validate_authentication
 If you can't resolve the issue:
 
 1. **Check existing issues**:
-   - https://github.com/microsoft/kalypso-scheduler/issues
+   - <https://github.com/microsoft/kalypso-scheduler/issues>
 
 2. **Create new issue**:
    - Include script version: `./bootstrap.sh --version`
@@ -374,6 +399,7 @@ If you can't resolve the issue:
 **Status**: GitHub API limitation
 
 **Workaround**:
+
 - Use authenticated requests (GITHUB_TOKEN)
 - Wait for rate limit reset
 - Use GitHub Enterprise if available

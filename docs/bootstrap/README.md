@@ -5,6 +5,7 @@ The Kalypso Scheduler Bootstrap Script is a comprehensive tool that helps platfo
 ## Overview
 
 This script automates the setup of:
+
 - **AKS Cluster**: Create new or use existing Azure Kubernetes Service clusters
 - **Control-Plane Repository**: GitHub repository containing Kalypso configuration resources
 - **GitOps Repository**: GitHub repository watched by GitOps operators on Kubernetes clusters
@@ -191,6 +192,7 @@ When creating new repositories, the script:
 ### Kalypso Installation
 
 The script installs Kalypso using Helm with:
+
 - Namespace: `kalypso-system`
 - Release name: `kalypso-scheduler`
 - Configuration pointing to your control-plane and gitops repositories
@@ -243,6 +245,7 @@ To remove all resources created by the bootstrap script:
 ```
 
 This will delete:
+
 - Kalypso Scheduler installation (Helm release)
 - Namespace: kalypso-system
 - AKS cluster (if created by script)
@@ -334,8 +337,9 @@ See [troubleshooting.md](troubleshooting.md) for common issues and solutions.
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/microsoft/kalypso-scheduler/issues
-- Documentation: https://github.com/microsoft/kalypso-scheduler/docs
+
+- GitHub Issues: <https://github.com/microsoft/kalypso-scheduler/issues>
+- Documentation: <https://github.com/microsoft/kalypso-scheduler/docs>
 
 ## License
 

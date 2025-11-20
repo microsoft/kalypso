@@ -20,12 +20,14 @@ See [prerequisites.md](prerequisites.md) for detailed installation instructions.
 ### 1. Authenticate
 
 Login to Azure:
+
 ```bash
 az login
 az account set --subscription "your-subscription-id"
 ```
 
 Set GitHub token:
+
 ```bash
 export GITHUB_TOKEN="your-github-personal-access-token"
 ```
@@ -33,12 +35,14 @@ export GITHUB_TOKEN="your-github-personal-access-token"
 ### 2. Run Bootstrap Script
 
 Create everything new (interactive mode):
+
 ```bash
 cd scripts/bootstrap
 ./bootstrap.sh
 ```
 
 The script will:
+
 1. ✓ Check prerequisites
 2. ✓ Prompt for configuration
 3. ✓ Create AKS cluster (~10 minutes)
@@ -49,6 +53,7 @@ The script will:
 ### 3. Verify Installation
 
 Check that everything is running:
+
 ```bash
 # Get cluster credentials (if not already done)
 az aks get-credentials \
@@ -176,6 +181,7 @@ export GITHUB_TOKEN="xxx"
 ### Bootstrap fails during cluster creation
 
 Check Azure quotas:
+
 ```bash
 az vm list-usage --location eastus --output table
 ```
@@ -183,6 +189,7 @@ az vm list-usage --location eastus --output table
 ### Kalypso pods not starting
 
 Check pod logs:
+
 ```bash
 kubectl logs -n kalypso-system -l app=kalypso-scheduler
 ```
@@ -190,6 +197,7 @@ kubectl logs -n kalypso-system -l app=kalypso-scheduler
 ### Workload not being scheduled
 
 Check Kalypso logs and scheduling policies:
+
 ```bash
 kubectl logs -n kalypso-system deployment/kalypso-scheduler-controller-manager
 kubectl get schedulingpolicies -n kalypso-system
@@ -211,6 +219,7 @@ cd scripts/bootstrap
 ```
 
 This will delete:
+
 - Kalypso Scheduler installation (Helm release)
 - Namespace: kalypso-system
 - AKS cluster
@@ -220,8 +229,8 @@ This will delete:
 ## Getting Help
 
 - **Documentation**: [README.md](README.md)
-- **Issues**: https://github.com/microsoft/kalypso-scheduler/issues
-- **Discussions**: https://github.com/microsoft/kalypso-scheduler/discussions
+- **Issues**: <https://github.com/microsoft/kalypso-scheduler/issues>
+- **Discussions**: <https://github.com/microsoft/kalypso-scheduler/discussions>
 
 ## Success Metrics
 

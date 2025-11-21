@@ -1,7 +1,7 @@
 apiVersion: scheduler.kalypso.io/v1alpha1
 kind: ClusterType
 metadata:
-  name: default
+  name: dev
 spec:
   reconciler: arc-flux
   namespaceService: default

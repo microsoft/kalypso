@@ -21,20 +21,20 @@ CONFIG_FILE=""
 AUTO_ROLLBACK=false
 CLEANUP_MODE=false
 
-# Cluster configuration
-CREATE_CLUSTER=false
-CLUSTER_NAME=""
-RESOURCE_GROUP=""
-LOCATION=""
-NODE_COUNT=""
-NODE_SIZE=""
-KALYPSO_NAMESPACE=""
+# Cluster configuration (preserve environment variables if set)
+CREATE_CLUSTER=${CREATE_CLUSTER:-false}
+CLUSTER_NAME="${CLUSTER_NAME:-}"
+RESOURCE_GROUP="${RESOURCE_GROUP:-}"
+LOCATION="${LOCATION:-}"
+NODE_COUNT="${NODE_COUNT:-}"
+NODE_SIZE="${NODE_SIZE:-}"
+KALYPSO_NAMESPACE="${KALYPSO_NAMESPACE:-}"
 
-# Repository configuration
-CREATE_REPOS=false
-CONTROL_PLANE_REPO=""
-GITOPS_REPO=""
-GITHUB_ORG=""
+# Repository configuration (preserve environment variables if set)
+CREATE_REPOS=${CREATE_REPOS:-false}
+CONTROL_PLANE_REPO="${CONTROL_PLANE_REPO:-}"
+GITOPS_REPO="${GITOPS_REPO:-}"
+GITHUB_ORG="${GITHUB_ORG:-}"
 
 # Track created resources for rollback
 declare -a CREATED_RESOURCES=()

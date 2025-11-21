@@ -114,14 +114,27 @@ EOF
 #   0 on success
 #######################################
 cleanup_all_resources() {
+    # Disable strict error handling for cleanup
+    set +e
+    
     log_info "=== Kalypso Scheduler Cleanup ===" "cleanup"
     log_warning "This will delete all resources created by the bootstrap script" "cleanup"
     
-    # Get configuration
-    if ! load_configuration; then
-        log_error "Configuration loading failed" "cleanup"
-        return 1
+    # Load configuration from file if specified
+    if [[ -n "${CONFIG_FILE:-}" ]]; then
+        log_info "Loading configuration from file: $CONFIG_FILE" "cleanup"
+        load_config_file || log_warning "Failed to load config file, using environment variables" "cleanup"
     fi
+    
+    # Use environment variables if set, otherwise use defaults
+    # These variables should be passed as environment variables or loaded from config file
+    local cluster_name="${CLUSTER_NAME:-}"
+    local resource_group="${RESOURCE_GROUP:-}"
+    local github_token="${GITHUB_TOKEN:-}"
+    local github_user="${GITHUB_USER:-}"
+    local github_org="${GITHUB_ORG:-}"
+    local control_plane_repo="${CONTROL_PLANE_REPO:-kalypso-control-plane}"
+    local gitops_repo="${GITOPS_REPO:-kalypso-gitops}"
     
     # Show what will be deleted
     cat <<EOF
@@ -129,11 +142,11 @@ cleanup_all_resources() {
 The following resources will be deleted:
 - Kalypso Scheduler installation (Helm release)
 - Namespace: kalypso-system
-- AKS Cluster: ${CLUSTER_NAME:-N/A}
-- Resource Group: ${RESOURCE_GROUP:-N/A}
-- GitHub Repositories (if created by script):
-  - Control-plane: kalypso-control-plane
-  - GitOps: kalypso-gitops
+- AKS Cluster: ${cluster_name:-N/A}
+- Resource Group: ${resource_group:-N/A}
+- GitHub Repositories:
+  - Control-plane: ${control_plane_repo}
+  - GitOps: ${gitops_repo}
 
 EOF
     
@@ -163,30 +176,30 @@ EOF
     fi
     
     # Delete AKS cluster
-    if [[ -n "${CLUSTER_NAME}" ]] && [[ -n "${RESOURCE_GROUP}" ]]; then
+    if [[ -n "${cluster_name}" ]] && [[ -n "${resource_group}" ]]; then
         log_step "Deleting AKS cluster"
-        if az aks show --resource-group "$RESOURCE_GROUP" --name "$CLUSTER_NAME" &> /dev/null; then
-            log_info "Deleting AKS cluster: $CLUSTER_NAME..." "cleanup"
-            az aks delete --resource-group "$RESOURCE_GROUP" --name "$CLUSTER_NAME" --yes --no-wait || log_warning "Failed to delete AKS cluster" "cleanup"
+        if az aks show --resource-group "$resource_group" --name "$cluster_name" &> /dev/null; then
+            log_info "Deleting AKS cluster: $cluster_name..." "cleanup"
+            az aks delete --resource-group "$resource_group" --name "$cluster_name" --yes --no-wait || log_warning "Failed to delete AKS cluster" "cleanup"
         else
             log_info "AKS cluster not found, skipping" "cleanup"
         fi
     fi
     
     # Delete resource group if it was created by the script
-    if [[ -n "${RESOURCE_GROUP}" ]]; then
+    if [[ -n "${resource_group}" ]]; then
         log_step "Deleting resource group"
-        if az group show --name "$RESOURCE_GROUP" &> /dev/null; then
-            log_info "Deleting resource group: $RESOURCE_GROUP..." "cleanup"
+        if az group show --name "$resource_group" &> /dev/null; then
+            log_info "Deleting resource group: $resource_group..." "cleanup"
             log_warning "This will delete ALL resources in the resource group" "cleanup"
             if [[ "${INTERACTIVE_MODE:-true}" == "true" ]]; then
-                if confirm "Delete resource group $RESOURCE_GROUP?" "n"; then
-                    az group delete --name "$RESOURCE_GROUP" --yes --no-wait || log_warning "Failed to delete resource group" "cleanup"
+                if confirm "Delete resource group $resource_group?" "n"; then
+                    az group delete --name "$resource_group" --yes --no-wait || log_warning "Failed to delete resource group" "cleanup"
                 else
                     log_info "Skipping resource group deletion" "cleanup"
                 fi
             else
-                az group delete --name "$RESOURCE_GROUP" --yes --no-wait || log_warning "Failed to delete resource group" "cleanup"
+                az group delete --name "$resource_group" --yes --no-wait || log_warning "Failed to delete resource group" "cleanup"
             fi
         else
             log_info "Resource group not found, skipping" "cleanup"
@@ -194,41 +207,41 @@ EOF
     fi
     
     # Delete GitHub repositories
-    if [[ -n "${GITHUB_TOKEN}" ]]; then
+    if [[ -n "${github_token}" ]]; then
         log_step "Deleting GitHub repositories"
         
-        # Ensure GITHUB_USER is set
-        if [[ -z "${GITHUB_USER:-}" ]]; then
+        # Ensure github_user is set
+        if [[ -z "${github_user}" ]]; then
             local user_response
-            user_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user)
+            user_response=$(curl -s -H "Authorization: token $github_token" https://api.github.com/user)
             if command_exists jq; then
-                GITHUB_USER=$(echo "$user_response" | jq -r '.login')
+                github_user=$(echo "$user_response" | jq -r '.login')
             else
-                GITHUB_USER=$(echo "$user_response" | grep -o '"login"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"login"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+                github_user=$(echo "$user_response" | grep -o '"login"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"login"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
             fi
         fi
         
-        local owner="${GITHUB_ORG:-$GITHUB_USER}"
+        local owner="${github_org:-$github_user}"
         
-        for repo_name in "kalypso-control-plane" "kalypso-gitops"; do
+        for repo_name in "$control_plane_repo" "$gitops_repo"; do
             local response
             response=$(curl -s -o /dev/null -w "%{http_code}" \
                 "https://api.github.com/repos/$owner/$repo_name" \
-                -H "Authorization: token $GITHUB_TOKEN")
+                -H "Authorization: token $github_token")
             
             if [[ "$response" == "200" ]]; then
                 log_info "Deleting repository: $owner/$repo_name..." "cleanup"
                 if [[ "${INTERACTIVE_MODE:-true}" == "true" ]]; then
                     if confirm "Delete GitHub repository $owner/$repo_name?" "n"; then
                         curl -s -X DELETE \
-                            -H "Authorization: token $GITHUB_TOKEN" \
+                            -H "Authorization: token $github_token" \
                             "https://api.github.com/repos/$owner/$repo_name" > /dev/null || log_warning "Failed to delete repository" "cleanup"
                     else
                         log_info "Skipping repository deletion" "cleanup"
                     fi
                 else
                     curl -s -X DELETE \
-                        -H "Authorization: token $GITHUB_TOKEN" \
+                        -H "Authorization: token $github_token" \
                         "https://api.github.com/repos/$owner/$repo_name" > /dev/null || log_warning "Failed to delete repository" "cleanup"
                 fi
             else
@@ -250,6 +263,8 @@ You can check the status with:
 
 EOF
     
+    # Restore strict error handling
+    set -e
     return 0
 }
 

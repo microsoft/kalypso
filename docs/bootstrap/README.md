@@ -235,23 +235,42 @@ Use `--auto-rollback` to automatically clean up resources on failure:
 
 ### Automatic Cleanup
 
-To remove all resources created by the bootstrap script:
+To remove all resources created by the bootstrap script, use the `--cleanup` flag with environment variables to specify which resources to delete:
 
 ```bash
 # Interactive cleanup (with confirmation prompts)
+# Deletes only Helm release and namespace
 ./bootstrap.sh --cleanup
 
-# Non-interactive cleanup
+# Cleanup including AKS cluster and resource group
+CLUSTER_NAME=my-kalypso-cluster \
+RESOURCE_GROUP=my-rg \
+./bootstrap.sh --cleanup
+
+# Cleanup including GitHub repositories
+GITHUB_TOKEN=ghp_xxx \
+GITHUB_ORG=myorg \
+CONTROL_PLANE_REPO=my-control-plane \
+GITOPS_REPO=my-gitops \
+./bootstrap.sh --cleanup
+
+# Full cleanup (cluster, resource group, and repositories)
+CLUSTER_NAME=my-kalypso-cluster \
+RESOURCE_GROUP=my-rg \
+GITHUB_TOKEN=ghp_xxx \
+GITHUB_ORG=myorg \
+CONTROL_PLANE_REPO=my-control-plane \
+GITOPS_REPO=my-gitops \
 ./bootstrap.sh --cleanup --non-interactive
 ```
 
-This will delete:
+The cleanup process will delete:
 
-- Kalypso Scheduler installation (Helm release)
-- Namespace: kalypso-system
-- AKS cluster (if created by script)
-- Resource group (with confirmation)
-- GitHub repositories (if created by script)
+- **Always**: Kalypso Scheduler installation (Helm release) and namespace `kalypso-system`
+- **If CLUSTER_NAME and RESOURCE_GROUP are set**: AKS cluster and resource group
+- **If GITHUB_TOKEN and repo names are set**: GitHub repositories (control-plane and gitops)
+
+> **Note**: If you don't specify environment variables, cleanup will only remove the Helm release and Kubernetes namespace, leaving the cluster and repositories intact.
 
 ### Manual Cleanup
 

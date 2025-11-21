@@ -14,11 +14,14 @@ scripts/bootstrap/
 │   ├── cluster.sh           # AKS cluster operations
 │   ├── repositories.sh      # GitHub repository management
 │   └── install.sh           # Kalypso installation and verification
-├── templates/               # Configuration templates
-│   └── config.yaml          # Sample configuration file
-├── tests/                   # Test scripts
-│   └── smoke-test.sh        # Basic functionality tests
-└── .shellcheckrc            # ShellCheck linting configuration
+├── templates/               # Repository templates
+│   ├── control-plane/       # Control-plane repository templates
+│   │   ├── main/           # Main branch structure
+│   │   └── dev/            # Dev branch structure
+│   └── gitops/             # GitOps repository templates
+│       ├── main/           # Main branch structure
+│       └── dev/            # Dev branch structure
+└── README.md               # This file
 ```
 
 ## Quick Start
@@ -26,38 +29,27 @@ scripts/bootstrap/
 Run the script in interactive mode:
 
 ```bash
+cd scripts/bootstrap
 ./bootstrap.sh
 ```
 
-Or use a configuration file:
+Or with a configuration file:
 
 ```bash
-./bootstrap.sh --config templates/config.yaml
+./bootstrap.sh --config kalypso-config.yaml
 ```
 
 For detailed usage, see [../../docs/bootstrap/README.md](../../docs/bootstrap/README.md)
 
 ## Development
 
-### Running Tests
-
-```bash
-./tests/smoke-test.sh
-```
-
 ### Linting
+
+Use shellcheck to validate all scripts:
 
 ```bash
 shellcheck bootstrap.sh lib/*.sh
 ```
-
-### Adding New Features
-
-1. Add new functions to appropriate library file in `lib/`
-2. Follow existing patterns (logging, error handling)
-3. Document functions with header comments
-4. Add tests to `tests/smoke-test.sh`
-5. Run shellcheck and tests before committing
 
 ## Library Modules
 
@@ -75,8 +67,8 @@ Core utilities used by all other modules:
 
 Prerequisites validation:
 
-- Required tool checking (kubectl, az, git, helm)
-- Optional tool checking (jq, yq, python3)
+- Required tool checking (kubectl, az, git, helm, gh, jq)
+- Optional tool checking (yq - required for YAML config files)
 - Version comparison
 - Azure authentication validation
 - GitHub authentication validation
@@ -106,11 +98,12 @@ AKS cluster operations:
 
 GitHub repository management:
 
-- Repository creation via GitHub API
-- Repository initialization with minimal structure
-- Control-plane repository setup
-- GitOps repository setup
+- Repository creation via GitHub API with custom names
+- Repository initialization with structured templates
+- Control-plane repository setup (main and dev branches)
+- GitOps repository setup (main and dev branches)
 - Repository validation
+- GitHub secrets configuration (via gh CLI)
 
 ### install.sh
 
@@ -135,16 +128,24 @@ All library functions follow these conventions:
 
 Key global variables (set by config.sh):
 
-- `CLUSTER_NAME` - AKS cluster name
-- `RESOURCE_GROUP` - Azure resource group
-- `LOCATION` - Azure region
-- `NODE_COUNT` - Number of cluster nodes
-- `NODE_SIZE` - VM size for nodes
-- `CONTROL_PLANE_REPO` - Control-plane repository URL
-- `GITOPS_REPO` - GitOps repository URL
-- `GITHUB_ORG` - GitHub organization (optional)
-- `CREATE_CLUSTER` - Boolean flag for cluster creation
+**Cluster Configuration:**
+- `CREATE_CLUSTER` - Boolean flag for cluster creation (default: false, uses existing)
+- `CLUSTER_NAME` - AKS cluster name (required)
+- `RESOURCE_GROUP` - Azure resource group (required)
+- `LOCATION` - Azure region (required for new clusters)
+- `NODE_COUNT` - Number of cluster nodes (default: 1)
+- `NODE_SIZE` - VM size for nodes (default: Standard_DS2_v2)
+
+**Repository Configuration:**
 - `CREATE_REPOS` - Boolean flag for repository creation
+- `CONTROL_PLANE_REPO` - Repository name when creating, or full URL when using existing
+- `GITOPS_REPO` - Repository name when creating, or full URL when using existing
+- `GITHUB_ORG` - GitHub organization (optional, defaults to user account)
+
+**Other:**
+- `KALYPSO_NAMESPACE` - Kubernetes namespace for Kalypso (default: kalypso-system)
+- `INTERACTIVE_MODE` - Boolean for interactive prompts (default: true)
+- `AUTO_ROLLBACK` - Boolean for automatic rollback on failure (default: false)
 
 ## Documentation
 

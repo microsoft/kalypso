@@ -4,10 +4,10 @@
 
 # Required tools with their version requirements (Bash 3.2 compatible)
 # Format: "tool:version tool:version ..."
-REQUIRED_TOOLS="kubectl:1.20.0 az:2.30.0 git:2.0.0 helm:3.0.0 gh:2.0.0"
+REQUIRED_TOOLS="kubectl:1.20.0 az:2.30.0 git:2.0.0 helm:3.0.0 gh:2.0.0 jq:1.6"
 
 # Optional tools that improve functionality
-OPTIONAL_TOOLS="jq:1.6 yq:4.0"
+OPTIONAL_TOOLS="yq:4.0"
 
 #######################################
 # Get version requirement for a tool

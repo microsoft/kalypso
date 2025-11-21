@@ -5,14 +5,18 @@
 #######################################
 # Create control-plane repository
 # Globals:
-#   GITHUB_TOKEN, GITHUB_ORG, GITHUB_USER
+#   GITHUB_TOKEN, GITHUB_ORG, GITHUB_USER, CONTROL_PLANE_REPO
 # Arguments:
 #   None
 # Returns:
 #   0 on success, 1 on error
 #######################################
 create_control_plane_repo() {
-    local repo_name="${DEFAULT_CONTROL_PLANE_REPO_NAME}"
+    # Use custom repo name if provided, otherwise use default
+    local repo_name="${CONTROL_PLANE_REPO:-${DEFAULT_CONTROL_PLANE_REPO_NAME}}"
+    # Strip any URL prefix if accidentally included
+    repo_name="${repo_name#https://github.com/*/}"
+    repo_name="${repo_name#*/}"
     
     # Ensure GITHUB_USER is set
     if [[ -z "${GITHUB_USER:-}" ]]; then
@@ -96,14 +100,18 @@ create_control_plane_repo() {
 #######################################
 # Create gitops repository
 # Globals:
-#   GITHUB_TOKEN, GITHUB_ORG, GITHUB_USER
+#   GITHUB_TOKEN, GITHUB_ORG, GITHUB_USER, GITOPS_REPO
 # Arguments:
 #   None
 # Returns:
 #   0 on success, 1 on error
 #######################################
 create_gitops_repo() {
-    local repo_name="${DEFAULT_GITOPS_REPO_NAME}"
+    # Use custom repo name if provided, otherwise use default
+    local repo_name="${GITOPS_REPO:-${DEFAULT_GITOPS_REPO_NAME}}"
+    # Strip any URL prefix if accidentally included
+    repo_name="${repo_name#https://github.com/*/}"
+    repo_name="${repo_name#*/}"
     
     # Ensure GITHUB_USER is set
     if [[ -z "${GITHUB_USER:-}" ]]; then

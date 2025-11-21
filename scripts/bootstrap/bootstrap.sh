@@ -69,18 +69,17 @@ OPTIONS:
     --cleanup               Clean up all resources created by bootstrap script
     
 CLUSTER OPTIONS:
-    --create-cluster        Create a new AKS cluster
-    --use-cluster NAME      Use existing AKS cluster NAME
-    --cluster-name NAME     Name for new cluster (default: kalypso-cluster)
-    --resource-group NAME   Azure resource group (default: kalypso-rg)
-    --location LOCATION     Azure location (default: westus2)
-    --node-count COUNT      Number of nodes (default: 1)
-    --node-size SIZE        VM size (default: Standard_DS2_v2)
+    --create-cluster        Create a new AKS cluster (default: false, use existing)
+    --cluster-name NAME     Cluster name (required)
+    --resource-group NAME   Azure resource group (required)
+    --location LOCATION     Azure location (default: westus2, for new clusters)
+    --node-count COUNT      Number of nodes (default: 1, for new clusters)
+    --node-size SIZE        VM size (default: Standard_DS2_v2, for new clusters)
     
 REPOSITORY OPTIONS:
     --create-repos          Create new control-plane and gitops repositories
-    --control-plane-repo URL    Use existing control-plane repository
-    --gitops-repo URL       Use existing gitops repository
+    --control-plane-repo NAME|URL  Repository name (when creating) or URL (when using existing)
+    --gitops-repo NAME|URL  Repository name (when creating) or URL (when using existing)
     --github-org ORG        GitHub organization (default: user's account)
     
 AUTHENTICATION:
@@ -96,7 +95,7 @@ EXAMPLES:
     ./$(basename "$0") --create-cluster --create-repos --non-interactive
     
     # Use existing cluster, create repositories
-    ./$(basename "$0") --use-cluster my-cluster --create-repos --non-interactive
+    ./$(basename "$0") --cluster-name my-cluster --resource-group my-rg --create-repos --non-interactive
     
     # Use configuration file
     ./$(basename "$0") --config bootstrap-config.yaml

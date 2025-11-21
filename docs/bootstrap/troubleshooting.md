@@ -213,7 +213,7 @@ az aks show --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 **Symptoms**:
 
 ```text
-ERROR [config]: Must specify either --create-cluster or --use-cluster
+ERROR [config]: Must specify either --create-cluster or provide existing cluster details
 ```
 
 **Solution**:
@@ -225,6 +225,16 @@ Provide all required configuration:
   --create-cluster \
   --cluster-name my-cluster \
   --resource-group my-rg \
+  --create-repos \
+  --non-interactive
+```
+
+Or for existing cluster:
+
+```bash
+./bootstrap.sh \
+  --cluster-name existing-cluster \
+  --resource-group existing-rg \
   --create-repos \
   --non-interactive
 ```

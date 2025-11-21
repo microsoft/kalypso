@@ -295,15 +295,15 @@ prompt_cluster_config() {
     if [[ "$CREATE_CLUSTER" == "true" ]]; then
         # Prompt for new cluster details
         if is_empty "$CLUSTER_NAME"; then
-            prompt_input "Cluster name" "CLUSTER_NAME" "$DEFAULT_CLUSTER_NAME" "^[a-zA-Z0-9-]+$" || return 1
+            prompt_input "Cluster name" "CLUSTER_NAME" "$DEFAULT_CLUSTER_NAME" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$RESOURCE_GROUP"; then
-            prompt_input "Resource group" "RESOURCE_GROUP" "$DEFAULT_RESOURCE_GROUP" "^[a-zA-Z0-9-_]+$" || return 1
+            prompt_input "Resource group" "RESOURCE_GROUP" "$DEFAULT_RESOURCE_GROUP" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$LOCATION"; then
-            prompt_input "Azure location" "LOCATION" "$DEFAULT_LOCATION" "^[a-z]+$" || return 1
+            prompt_input "Azure location" "LOCATION" "$DEFAULT_LOCATION" "^[a-z0-9]+$" || return 1
         fi
         
         if is_empty "$NODE_COUNT"; then
@@ -316,11 +316,11 @@ prompt_cluster_config() {
     else
         # Using existing cluster - only prompt for name and resource group
         if is_empty "$CLUSTER_NAME"; then
-            prompt_input "Existing cluster name" "CLUSTER_NAME" "" "^[a-zA-Z0-9-]+$" || return 1
+            prompt_input "Existing cluster name" "CLUSTER_NAME" "" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$RESOURCE_GROUP"; then
-            prompt_input "Resource group" "RESOURCE_GROUP" "" "^[a-zA-Z0-9-_]+$" || return 1
+            prompt_input "Resource group" "RESOURCE_GROUP" "" "^[a-zA-Z0-9_-]+$" || return 1
         fi
     fi
     
@@ -355,11 +355,11 @@ prompt_repo_config() {
         
         # Prompt for custom repo names if not set
         if is_empty "$CONTROL_PLANE_REPO"; then
-            prompt_input "Control-plane repository name" "CONTROL_PLANE_REPO" "$DEFAULT_CONTROL_PLANE_REPO_NAME" "^[a-zA-Z0-9-_]+$" || return 1
+            prompt_input "Control-plane repository name" "CONTROL_PLANE_REPO" "$DEFAULT_CONTROL_PLANE_REPO_NAME" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$GITOPS_REPO"; then
-            prompt_input "GitOps repository name" "GITOPS_REPO" "$DEFAULT_GITOPS_REPO_NAME" "^[a-zA-Z0-9-_]+$" || return 1
+            prompt_input "GitOps repository name" "GITOPS_REPO" "$DEFAULT_GITOPS_REPO_NAME" "^[a-zA-Z0-9_-]+$" || return 1
         fi
     else
         # Prompt for existing repo URLs

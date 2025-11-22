@@ -57,8 +57,6 @@ install_kalypso() {
     if ! helm upgrade --devel --install "$release_name" "kalypso/$chart_name" \
         --namespace "$namespace" \
         --create-namespace \
-        --wait \
-        --timeout 5m \
         --set controlPlaneURL="$control_plane_url" \
         --set controlPlaneBranch="main" \
         --set ghRepoToken="$gh_repo_token"; then
@@ -66,7 +64,8 @@ install_kalypso() {
         return 1
     fi
     
-    log_success "Kalypso Scheduler installed successfully"
+    log_success "Kalypso Scheduler installation initiated"
+    log_info "Note: Pods may take a few minutes to become ready" "install"
     return 0
 }
 

@@ -265,7 +265,10 @@ EOF
     export CLUSTER_NAME="${CLUSTER_NAME}"
     export KALYPSO_NAMESPACE="${KALYPSO_NAMESPACE}"
     export CONTROL_PLANE_REPO_URL="https://github.com/${owner}/${repo_name}"
-    export GITOPS_REPO_URL="${GITOPS_REPO_URL:-https://github.com/${owner}/${DEFAULT_GITOPS_REPO_NAME}}"
+    # Use actual GITOPS_REPO variable if set, otherwise construct from repo name
+    local gitops_repo_name="${GITOPS_REPO##*/}"
+    [[ -z "$gitops_repo_name" ]] && gitops_repo_name="${DEFAULT_GITOPS_REPO_NAME}"
+    export GITOPS_REPO_URL="https://github.com/${owner}/${gitops_repo_name}"
     
     # Only substitute our variables, preserve GitHub Actions variables
     find . -type f \( -name "*.yaml" -o -name "*.yml" \) -exec sh -c '
@@ -347,7 +350,9 @@ EOF
     
     if command_exists gh; then
         # Create GITOPS_REPO secret (owner/repo format without https://github.com/)
-        local gitops_repo_path="${GITHUB_ORG:-$GITHUB_USER}/${DEFAULT_GITOPS_REPO_NAME}"
+        local gitops_repo_name="${GITOPS_REPO##*/}"
+        [[ -z "$gitops_repo_name" ]] && gitops_repo_name="${DEFAULT_GITOPS_REPO_NAME}"
+        local gitops_repo_path="${GITHUB_ORG:-$GITHUB_USER}/${gitops_repo_name}"
         if ! gh secret set GITOPS_REPO --body "$gitops_repo_path" --repo "${owner}/${repo_name}" &> /dev/null; then
             log_warning "Failed to create GITOPS_REPO secret, you may need to set it manually" "repo"
         else

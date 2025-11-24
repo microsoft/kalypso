@@ -11,7 +11,7 @@ spec:
       apiVersion: source.toolkit.fluxcd.io/v1beta2
       kind: GitRepository
       metadata:
-        name: {{ .Manifests.branch}}.{{ .Workspace}}.{{ index .Labels "application"}}.{{ .Workload}}.{{ .DeploymentTargetName}}
+        name: {{ .Manifests.branch}}.{{ .Workload}}.{{ .DeploymentTargetName}}
         namespace: flux-system
       spec:
         interval: 30s
@@ -24,13 +24,13 @@ spec:
       apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
       kind: Kustomization
       metadata:
-        name: {{ .Manifests.branch}}.{{ .Workspace}}.{{ index .Labels "application"}}.{{ .Workload}}.{{ .DeploymentTargetName}}
+        name: {{ .Manifests.branch}}.{{ .Workload}}.{{ .DeploymentTargetName}}
         namespace: flux-system
       spec:
         interval: 30s
         targetNamespace: "{{ .Namespace}}"
         sourceRef:
           kind: GitRepository
-          name: {{ .Manifests.branch}}.{{ .Workspace}}.{{ index .Labels "application"}}.{{ .Workload}}.{{ .DeploymentTargetName}}
+          name: {{ .Manifests.branch}}.{{ .Workload}}.{{ .DeploymentTargetName}}
         path: "{{ .Manifests.path}}" 
         prune: true

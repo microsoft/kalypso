@@ -11,7 +11,7 @@ spec:
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: "{{ .DeploymentTargetName}}"
+        name: "{{ .Manifests.branch}}.{{ .Workload}}.{{ .DeploymentTargetName}}"
         namespace: argocd
       spec:
         destination:

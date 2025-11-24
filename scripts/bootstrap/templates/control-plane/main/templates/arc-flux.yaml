@@ -28,7 +28,7 @@ spec:
         namespace: flux-system
       spec:
         interval: 30s
-        targetNamespace: "{{ .Namespace}}"
+        targetNamespace: "{{ .DeploymentTargetName}}"
         sourceRef:
           kind: GitRepository
           name: {{ .Manifests.branch}}.{{ .Workload}}.{{ .DeploymentTargetName}}

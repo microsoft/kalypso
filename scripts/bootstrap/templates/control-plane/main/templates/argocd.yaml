@@ -16,7 +16,7 @@ spec:
       spec:
         destination:
           server: https://kubernetes.default.svc
-          namespace: "{{ .Namespace}}"
+          namespace: "{{ .DeploymentTargetName}}"
         project: default
         source:
           path: "{{ .Manifests.path}}"

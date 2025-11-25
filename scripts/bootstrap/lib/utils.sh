@@ -181,11 +181,16 @@ log_step() {
 #######################################
 json_get_value() {
     local json="$1"
-    local key="$2"
+    local key="${2:-}"
+    
+    # Return empty if no key provided
+    if [[ -z "$key" ]]; then
+        return 0
+    fi
     
     # Use jq if available for robust JSON parsing
     if command -v jq &> /dev/null; then
-        echo "$json" | jq -r ".$key // empty"
+        echo "$json" | jq -r ".${key} // empty"
     else
         # Basic grep/sed fallback (not robust for complex JSON)
         echo "$json" | grep -o "\"$key\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" | sed 's/.*"\([^"]*\)"/\1/'

@@ -129,6 +129,7 @@ All library functions follow these conventions:
 Key global variables (set by config.sh):
 
 **Cluster Configuration:**
+
 - `CREATE_CLUSTER` - Boolean flag for cluster creation (default: false, uses existing)
 - `CLUSTER_NAME` - AKS cluster name (required)
 - `RESOURCE_GROUP` - Azure resource group (required)
@@ -137,12 +138,14 @@ Key global variables (set by config.sh):
 - `NODE_SIZE` - VM size for nodes (default: Standard_DS2_v2)
 
 **Repository Configuration:**
+
 - `CREATE_REPOS` - Boolean flag for repository creation
 - `CONTROL_PLANE_REPO` - Repository name when creating, or full URL when using existing
 - `GITOPS_REPO` - Repository name when creating, or full URL when using existing
 - `GITHUB_ORG` - GitHub organization (optional, defaults to user account)
 
 **Other:**
+
 - `KALYPSO_NAMESPACE` - Kubernetes namespace for Kalypso (default: kalypso-system)
 - `INTERACTIVE_MODE` - Boolean for interactive prompts (default: true)
 - `AUTO_ROLLBACK` - Boolean for automatic rollback on failure (default: false)

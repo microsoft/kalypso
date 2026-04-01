@@ -125,11 +125,38 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 helm version
 ```
 
-## Optional Tools (Recommended)
+### GitHub CLI (gh)
+
+GitHub command-line tool for managing repositories and secrets.
+
+**Minimum Version**: 2.0.0
+
+**Installation**:
+
+macOS:
+
+```bash
+brew install gh
+```
+
+Linux:
+
+```bash
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update
+sudo apt install gh
+```
+
+**Verify**:
+
+```bash
+gh --version
+```
 
 ### jq
 
-Command-line JSON processor for enhanced configuration handling.
+Command-line JSON processor for parsing API responses and configuration files.
 
 **Minimum Version**: 1.6
 
@@ -153,11 +180,21 @@ RHEL/CentOS:
 sudo yum install jq
 ```
 
+**Verify**:
+
+```bash
+jq --version
+```
+
+## Optional Tools (Recommended)
+
 ### yq
 
 Command-line YAML processor for configuration files.
 
 **Minimum Version**: 4.0
+
+**Note**: **Required** if you want to use YAML configuration files with `--config file.yaml`.
 
 **Installation**:
 

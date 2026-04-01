@@ -10,6 +10,6 @@ spec:
       kind: ConfigMap
       metadata:
         name: platform-config
-        namespace: {{ .Namespace}}
+        namespace: {{ .DeploymentTargetName}}
       data:
       {{ stringify .ConfigData | indent 2}}

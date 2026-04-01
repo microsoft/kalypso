@@ -22,11 +22,11 @@ Before running the bootstrap script, ensure you have:
    - `az` (Azure CLI >= 2.30.0)
    - `git` (>= 2.0.0)
    - `helm` (>= 3.0.0)
+   - `gh` (GitHub CLI >= 2.0.0)
+   - `jq` (>= 1.6)
 
-2. **Optional Tools** (recommended):
-   - `jq` (>= 1.6) - for JSON processing
-   - `yq` (>= 4.0) - for YAML processing
-   - `python3` (>= 3.6) - enhanced JSON parsing
+2. **Optional Tools**:
+   - `yq` (>= 4.0) - **required** if using YAML configuration files
 
 3. **Authentication**:
    - Azure account with permissions to create AKS clusters
@@ -106,6 +106,8 @@ Create a new AKS cluster and GitHub repositories:
   --node-count 5 \
   --node-size Standard_DS3_v2 \
   --create-repos \
+  --control-plane-repo my-control-plane \
+  --gitops-repo my-gitops \
   --github-org my-org \
   --non-interactive
 ```
@@ -116,7 +118,7 @@ Install Kalypso on an existing AKS cluster:
 
 ```bash
 ./bootstrap.sh \
-  --use-cluster existing-cluster \
+  --cluster-name existing-cluster \
   --resource-group existing-rg \
   --create-repos \
   --non-interactive
@@ -148,19 +150,18 @@ Use existing control-plane and gitops repositories:
 
 ### Cluster Options
 
-- `--create-cluster` - Create a new AKS cluster
-- `--use-cluster NAME` - Use existing cluster NAME
-- `--cluster-name NAME` - Cluster name (default: kalypso-cluster)
-- `--resource-group NAME` - Resource group (default: kalypso-rg)
-- `--location LOCATION` - Azure region (default: eastus)
-- `--node-count COUNT` - Number of nodes (default: 3)
-- `--node-size SIZE` - VM size (default: Standard_DS2_v2)
+- `--create-cluster` - Create a new AKS cluster (if not specified, uses existing cluster)
+- `--cluster-name NAME` - Cluster name (required)
+- `--resource-group NAME` - Resource group (required)
+- `--location LOCATION` - Azure region (default: eastus, required for new clusters)
+- `--node-count COUNT` - Number of nodes (default: 3, for new clusters)
+- `--node-size SIZE` - VM size (default: Standard_DS2_v2, for new clusters)
 
 ### Repository Options
 
 - `--create-repos` - Create new repositories
-- `--control-plane-repo URL` - Use existing control-plane repo
-- `--gitops-repo URL` - Use existing gitops repo
+- `--control-plane-repo NAME|URL` - Repository name when creating (e.g., `my-control-plane`) or full URL when using existing (e.g., `https://github.com/org/repo`)
+- `--gitops-repo NAME|URL` - Repository name when creating or full URL when using existing
 - `--github-org ORG` - GitHub organization (default: user account)
 
 ## What Gets Created
@@ -234,23 +235,42 @@ Use `--auto-rollback` to automatically clean up resources on failure:
 
 ### Automatic Cleanup
 
-To remove all resources created by the bootstrap script:
+To remove all resources created by the bootstrap script, use the `--cleanup` flag with environment variables to specify which resources to delete:
 
 ```bash
 # Interactive cleanup (with confirmation prompts)
+# Deletes only Helm release and namespace
 ./bootstrap.sh --cleanup
 
-# Non-interactive cleanup
+# Cleanup including AKS cluster and resource group
+CLUSTER_NAME=my-kalypso-cluster \
+RESOURCE_GROUP=my-rg \
+./bootstrap.sh --cleanup
+
+# Cleanup including GitHub repositories
+GITHUB_TOKEN=ghp_xxx \
+GITHUB_ORG=myorg \
+CONTROL_PLANE_REPO=my-control-plane \
+GITOPS_REPO=my-gitops \
+./bootstrap.sh --cleanup
+
+# Full cleanup (cluster, resource group, and repositories)
+CLUSTER_NAME=my-kalypso-cluster \
+RESOURCE_GROUP=my-rg \
+GITHUB_TOKEN=ghp_xxx \
+GITHUB_ORG=myorg \
+CONTROL_PLANE_REPO=my-control-plane \
+GITOPS_REPO=my-gitops \
 ./bootstrap.sh --cleanup --non-interactive
 ```
 
-This will delete:
+The cleanup process will delete:
 
-- Kalypso Scheduler installation (Helm release)
-- Namespace: kalypso-system
-- AKS cluster (if created by script)
-- Resource group (with confirmation)
-- GitHub repositories (if created by script)
+- **Always**: Kalypso Scheduler installation (Helm release) and namespace `kalypso-system`
+- **If CLUSTER_NAME and RESOURCE_GROUP are set**: AKS cluster and resource group
+- **If GITHUB_TOKEN and repo names are set**: GitHub repositories (control-plane and gitops)
+
+> **Note**: If you don't specify environment variables, cleanup will only remove the Helm release and Kubernetes namespace, leaving the cluster and repositories intact.
 
 ### Manual Cleanup
 
@@ -273,6 +293,7 @@ az group delete --name kalypso-rg
 
 ```yaml
 cluster:
+  create: true  # Set to false to use existing cluster
   name: kalypso-cluster
   resourceGroup: kalypso-rg
   location: eastus
@@ -280,8 +301,9 @@ cluster:
   nodeSize: Standard_DS2_v2
 
 repositories:
-  controlPlane: https://github.com/org/control-plane
-  gitops: https://github.com/org/gitops
+  create: true  # Set to false to use existing repositories
+  controlPlane: my-control-plane  # Repo name when creating, URL when using existing
+  gitops: my-gitops  # Repo name when creating, URL when using existing
 
 github:
   org: my-organization
@@ -292,6 +314,7 @@ github:
 ```json
 {
   "cluster": {
+    "create": true,
     "name": "kalypso-cluster",
     "resourceGroup": "kalypso-rg",
     "location": "eastus",
@@ -299,8 +322,9 @@ github:
     "nodeSize": "Standard_DS2_v2"
   },
   "repositories": {
-    "controlPlane": "https://github.com/org/control-plane",
-    "gitops": "https://github.com/org/gitops"
+    "create": true,
+    "controlPlane": "my-control-plane",
+    "gitops": "my-gitops"
   },
   "github": {
     "org": "my-organization"
@@ -308,16 +332,20 @@ github:
 }
 ```
 
+Note: Repository values can be repo names (when creating) or full URLs (when using existing).
+
 ### ENV Format
 
 ```bash
+CREATE_CLUSTER=true  # Set to false to use existing cluster
 CLUSTER_NAME=kalypso-cluster
 RESOURCE_GROUP=kalypso-rg
 LOCATION=eastus
 NODE_COUNT=3
 NODE_SIZE=Standard_DS2_v2
-CONTROL_PLANE_REPO=https://github.com/org/control-plane
-GITOPS_REPO=https://github.com/org/gitops
+CREATE_REPOS=true  # Set to false to use existing repositories
+CONTROL_PLANE_REPO=my-control-plane  # Repo name when creating, URL when using existing
+GITOPS_REPO=my-gitops  # Repo name when creating, URL when using existing
 GITHUB_ORG=my-organization
 ```
 

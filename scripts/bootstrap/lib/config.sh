@@ -21,20 +21,20 @@ CONFIG_FILE=""
 AUTO_ROLLBACK=false
 CLEANUP_MODE=false
 
-# Cluster configuration
-CREATE_CLUSTER=false
-CLUSTER_NAME=""
-RESOURCE_GROUP=""
-LOCATION=""
-NODE_COUNT=""
-NODE_SIZE=""
-KALYPSO_NAMESPACE=""
+# Cluster configuration (preserve environment variables if set)
+CREATE_CLUSTER=${CREATE_CLUSTER:-false}
+CLUSTER_NAME="${CLUSTER_NAME:-}"
+RESOURCE_GROUP="${RESOURCE_GROUP:-}"
+LOCATION="${LOCATION:-}"
+NODE_COUNT="${NODE_COUNT:-}"
+NODE_SIZE="${NODE_SIZE:-}"
+KALYPSO_NAMESPACE="${KALYPSO_NAMESPACE:-}"
 
-# Repository configuration
-CREATE_REPOS=false
-CONTROL_PLANE_REPO=""
-GITOPS_REPO=""
-GITHUB_ORG=""
+# Repository configuration (preserve environment variables if set)
+CREATE_REPOS=${CREATE_REPOS:-false}
+CONTROL_PLANE_REPO="${CONTROL_PLANE_REPO:-}"
+GITOPS_REPO="${GITOPS_REPO:-}"
+GITHUB_ORG="${GITHUB_ORG:-}"
 
 # Track created resources for rollback
 declare -a CREATED_RESOURCES=()
@@ -185,11 +185,27 @@ load_yaml_config() {
     fi
     
     # Read values from YAML
+    local create_cluster_value
+    create_cluster_value=$(yq eval '.cluster.create // ""' "$config_file")
+    if [[ "$create_cluster_value" == "true" ]]; then
+        CREATE_CLUSTER=true
+    elif [[ "$create_cluster_value" == "false" ]]; then
+        CREATE_CLUSTER=false
+    fi
+    
     CLUSTER_NAME=$(yq eval '.cluster.name // ""' "$config_file")
     RESOURCE_GROUP=$(yq eval '.cluster.resourceGroup // ""' "$config_file")
     LOCATION=$(yq eval '.cluster.location // ""' "$config_file")
     NODE_COUNT=$(yq eval '.cluster.nodeCount // ""' "$config_file")
     NODE_SIZE=$(yq eval '.cluster.nodeSize // ""' "$config_file")
+    
+    local create_repos_value
+    create_repos_value=$(yq eval '.repositories.create // ""' "$config_file")
+    if [[ "$create_repos_value" == "true" ]]; then
+        CREATE_REPOS=true
+    elif [[ "$create_repos_value" == "false" ]]; then
+        CREATE_REPOS=false
+    fi
     
     CONTROL_PLANE_REPO=$(yq eval '.repositories.controlPlane // ""' "$config_file")
     GITOPS_REPO=$(yq eval '.repositories.gitops // ""' "$config_file")
@@ -211,11 +227,27 @@ load_json_config() {
     
     json_content=$(cat "$config_file")
     
+    local create_cluster_value
+    create_cluster_value=$(json_get_value "$json_content" "cluster.create")
+    if [[ "$create_cluster_value" == "true" ]]; then
+        CREATE_CLUSTER=true
+    elif [[ "$create_cluster_value" == "false" ]]; then
+        CREATE_CLUSTER=false
+    fi
+    
     CLUSTER_NAME=$(json_get_value "$json_content" "cluster.name")
     RESOURCE_GROUP=$(json_get_value "$json_content" "cluster.resourceGroup")
     LOCATION=$(json_get_value "$json_content" "cluster.location")
     NODE_COUNT=$(json_get_value "$json_content" "cluster.nodeCount")
     NODE_SIZE=$(json_get_value "$json_content" "cluster.nodeSize")
+    
+    local create_repos_value
+    create_repos_value=$(json_get_value "$json_content" "repositories.create")
+    if [[ "$create_repos_value" == "true" ]]; then
+        CREATE_REPOS=true
+    elif [[ "$create_repos_value" == "false" ]]; then
+        CREATE_REPOS=false
+    fi
     
     CONTROL_PLANE_REPO=$(json_get_value "$json_content" "repositories.controlPlane")
     GITOPS_REPO=$(json_get_value "$json_content" "repositories.gitops")
@@ -263,15 +295,15 @@ prompt_cluster_config() {
     if [[ "$CREATE_CLUSTER" == "true" ]]; then
         # Prompt for new cluster details
         if is_empty "$CLUSTER_NAME"; then
-            prompt_input "Cluster name" "CLUSTER_NAME" "$DEFAULT_CLUSTER_NAME" "^[a-zA-Z0-9-]+$" || return 1
+            prompt_input "Cluster name" "CLUSTER_NAME" "$DEFAULT_CLUSTER_NAME" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$RESOURCE_GROUP"; then
-            prompt_input "Resource group" "RESOURCE_GROUP" "$DEFAULT_RESOURCE_GROUP" "^[a-zA-Z0-9-_]+$" || return 1
+            prompt_input "Resource group" "RESOURCE_GROUP" "$DEFAULT_RESOURCE_GROUP" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$LOCATION"; then
-            prompt_input "Azure location" "LOCATION" "$DEFAULT_LOCATION" "^[a-z]+$" || return 1
+            prompt_input "Azure location" "LOCATION" "$DEFAULT_LOCATION" "^[a-z0-9]+$" || return 1
         fi
         
         if is_empty "$NODE_COUNT"; then
@@ -284,11 +316,11 @@ prompt_cluster_config() {
     else
         # Using existing cluster - only prompt for name and resource group
         if is_empty "$CLUSTER_NAME"; then
-            prompt_input "Existing cluster name" "CLUSTER_NAME" "" "^[a-zA-Z0-9-]+$" || return 1
+            prompt_input "Existing cluster name" "CLUSTER_NAME" "" "^[a-zA-Z0-9_-]+$" || return 1
         fi
         
         if is_empty "$RESOURCE_GROUP"; then
-            prompt_input "Resource group" "RESOURCE_GROUP" "" "^[a-zA-Z0-9-_]+$" || return 1
+            prompt_input "Resource group" "RESOURCE_GROUP" "" "^[a-zA-Z0-9_-]+$" || return 1
         fi
     fi
     
@@ -319,6 +351,15 @@ prompt_repo_config() {
     if [[ "$CREATE_REPOS" == "true" ]]; then
         if is_empty "$GITHUB_ORG"; then
             prompt_input "GitHub organization (leave empty for personal account)" "GITHUB_ORG" "" "" || true
+        fi
+        
+        # Prompt for custom repo names if not set
+        if is_empty "$CONTROL_PLANE_REPO"; then
+            prompt_input "Control-plane repository name" "CONTROL_PLANE_REPO" "$DEFAULT_CONTROL_PLANE_REPO_NAME" "^[a-zA-Z0-9_-]+$" || return 1
+        fi
+        
+        if is_empty "$GITOPS_REPO"; then
+            prompt_input "GitOps repository name" "GITOPS_REPO" "$DEFAULT_GITOPS_REPO_NAME" "^[a-zA-Z0-9_-]+$" || return 1
         fi
     else
         # Prompt for existing repo URLs
@@ -467,8 +508,8 @@ REPOSITORIES:
 $(if [[ "$CREATE_REPOS" == "true" ]]; then
 cat <<REPO_DETAILS
   GitHub Org: ${GITHUB_ORG:-Personal account}
-  Control Plane: Will be created as ${DEFAULT_CONTROL_PLANE_REPO_NAME}
-  GitOps: Will be created as ${DEFAULT_GITOPS_REPO_NAME}
+  Control Plane: Will be created as ${CONTROL_PLANE_REPO:-${DEFAULT_CONTROL_PLANE_REPO_NAME}}
+  GitOps: Will be created as ${GITOPS_REPO:-${DEFAULT_GITOPS_REPO_NAME}}
 REPO_DETAILS
 else
 cat <<EXISTING_REPO_DETAILS

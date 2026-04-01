@@ -11,7 +11,7 @@ spec:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: "{{ .Namespace}}" 
+        name: "{{ .DeploymentTargetName}}" 
         labels:
           environment: "{{ .Environment}}"
           workspace: "{{ .Workspace}}"
@@ -22,7 +22,7 @@ spec:
       kind: ServiceAccount
       metadata:
         name: "{{ .Workload}}-sa"
-        namespace: "{{ .Namespace}}"
+        namespace: "{{ .DeploymentTargetName}}"
       {{if .ConfigData.imagePullSecrets }}
       imagePullSecrets:
       - name: {{ .ConfigData.imagePullSecrets }}

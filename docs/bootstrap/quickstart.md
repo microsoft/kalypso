@@ -133,7 +133,7 @@ ls -R clusters/
 
 ```bash
 ./bootstrap.sh \
-  --use-cluster my-existing-cluster \
+  --cluster-name my-existing-cluster \
   --resource-group my-existing-rg \
   --create-repos
 ```
@@ -153,6 +153,7 @@ Create a config file `kalypso-config.yaml`:
 
 ```yaml
 cluster:
+  create: true
   name: kalypso-prod
   resourceGroup: kalypso-prod-rg
   location: westus2
@@ -160,8 +161,9 @@ cluster:
   nodeSize: Standard_DS3_v2
 
 repositories:
-  controlPlane: ""
-  gitops: ""
+  create: true
+  controlPlane: my-control-plane
+  gitops: my-gitops
 
 github:
   org: my-organization

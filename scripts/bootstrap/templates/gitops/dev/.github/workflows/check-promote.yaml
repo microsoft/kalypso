@@ -1,0 +1,32 @@
+name: checkpromote
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+    paths-ignore:
+      - '.github/**'      
+
+jobs:
+  Check_deployment_in_control_plane:
+    runs-on: ubuntu-latest    
+    steps: 
+    - name: Checkout Gitops
+      uses: actions/checkout@v3
+    - name: Get Promoted Label
+      run: |
+        promoted=$(gh pr list --search $COMMIT_ID --state merged --label promoted)
+        if [[ ! -z "$promoted" ]]; then
+          PROMOTED_COMMIT_ID=$(cat .github/tracking/Promoted_Commit_Id)
+          echo "PROMOTED_COMMIT_ID=$PROMOTED_COMMIT_ID" >> $GITHUB_ENV
+          echo $PROMOTED_COMMIT_ID
+        fi         
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COMMIT_ID: ${{ github.sha }}
+    - name: Check and Promote
+      run: |
+          gh workflow run check-promote.yaml -f environment=$GITHUB_REF_NAME -f promoted_commit_id=$PROMOTED_COMMIT_ID -f commit_id=$GITHUB_SHA -r main -R ${CONTROL_PLANE_REPO_URL}       
+      env:
+        GH_TOKEN: ${{ secrets.CONTROL_PLANE_TOKEN }}

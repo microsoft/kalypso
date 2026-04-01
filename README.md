@@ -11,6 +11,10 @@ It provides a composable reference architecture of the workload management in a 
 
 This is an umbrella repository that contains requirements, use cases, architecture and code. The overall solution is composable so that every single component is handled in [its own repository](#referenced-repositories).
 
+## Getting Started
+
+To quickly set up and explore Kalypso in your environment, follow the [bootstrap guide](./docs/bootstrap/README.md). The guide provides step-by-step instructions for deploying the reference implementation, including prerequisites, quickstart steps, and troubleshooting tips to help you get up and running with workload management across your multi-cluster environment.
+
 ## Motivation
 
 There is an organization developing cloud-native applications. Any application needs a compute resource to work on. In the cloud-native world, this compute resource is a Kubernetes cluster. An organization may have a single cluster or, more commonly, multiple clusters. So the organization must decide which applications should work on which clusters. In other words, they must schedule the applications across clusters. The result of this decision, or scheduling, is a model of the desired state of the clusters in their environment. Having that in place, they need somehow to deliver applications to the assigned clusters so that they can turn the desired state into the reality, or, in other words, reconcile it.

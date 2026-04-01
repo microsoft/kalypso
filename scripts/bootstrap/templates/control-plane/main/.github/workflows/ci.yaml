@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: write-all
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:    
+    - name: Checkout Source
+      uses: actions/checkout@v2.3.4
+    - name: Do Some Checks
+      run: |
+          echo "Do Some Checks"
+    - name: Start CD
+      run: |
+          gh workflow run cd.yaml -f environment=dev -f promoted_commit_id=$GITHUB_SHA      
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

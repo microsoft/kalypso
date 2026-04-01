@@ -1,0 +1,8 @@
+apiVersion: scheduler.kalypso.io/v1alpha1
+kind: BaseRepo
+metadata:
+  name: main
+spec:
+  repo: ${CONTROL_PLANE_REPO_URL}
+  branch: main
+  path: .

@@ -1,0 +1,20 @@
+# ShellCheck configuration for Kalypso bootstrap scripts
+# See: https://www.shellcheck.net/wiki/
+
+# Disable specific checks that are not relevant for this project
+
+# SC1090: Can't follow non-constant source
+# We use dynamic sourcing for library files
+disable=SC1090
+
+# SC1091: Not following sourced files
+# Library files are checked separately
+disable=SC1091
+
+# SC2034: Variable appears unused
+# Some variables are exported for use in other scripts
+disable=SC2034
+
+# SC2153: Possible misspelling
+# Variables are set by other modules (config.sh sets cluster variables)
+disable=SC2153

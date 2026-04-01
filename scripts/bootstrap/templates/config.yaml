@@ -1,0 +1,65 @@
+# Kalypso Bootstrap Configuration Template
+#
+# This file provides a template for configuring the Kalypso bootstrap script.
+# Copy this file and customize it for your environment.
+#
+# Usage: ./bootstrap.sh --config <path-to-this-file>
+
+# Cluster Configuration
+cluster:
+  # Whether to create a new cluster or use an existing one
+  # Set to true to create a new cluster, false to use existing
+  # If omitted, defaults to false (use existing)
+  create: true
+  
+  # Name of the AKS cluster
+  # Required for both creating new clusters and using existing ones
+  name: kalypso-cluster
+  
+  # Azure resource group name
+  # Required - will be created if it doesn't exist when creating a new cluster
+  resourceGroup: kalypso-rg
+  
+  # Azure region/location (required only for new clusters)
+  # Examples: eastus, westus2, northeurope, southeastasia
+  location: eastus
+  
+  # Number of nodes in the cluster (for new clusters only)
+  # Recommended: 3-5 for production, 1 for development
+  # Default: 1
+  nodeCount: 1
+  
+  # Azure VM size for cluster nodes (for new clusters only)
+  # Examples:
+  #   - Standard_B2s (2 vCPU, 4 GiB) - Burstable, good for dev
+  #   - Standard_DS2_v2 (2 vCPU, 7 GiB) - General purpose (default)
+  #   - Standard_DS3_v2 (4 vCPU, 14 GiB) - More resources
+  #   - Standard_D4s_v3 (4 vCPU, 16 GiB) - Latest generation
+  nodeSize: Standard_DS2_v2
+
+# Repository Configuration
+repositories:
+  # Whether to create new repositories or use existing ones
+  # Set to true to create new repositories, false to use existing
+  # If omitted, defaults to false (use existing)
+  create: true
+  
+  # Control plane repository
+  # When create=true: provide repository name (e.g., "my-control-plane")
+  # When create=false: provide full URL (e.g., "https://github.com/myorg/kalypso-control-plane")
+  # Leave empty to use default name "kalypso-control-plane" when creating
+  controlPlane: "my-control-plane"
+  
+  # GitOps repository
+  # When create=true: provide repository name (e.g., "my-gitops")
+  # When create=false: provide full URL (e.g., "https://github.com/myorg/kalypso-gitops")
+  # Leave empty to use default name "kalypso-gitops" when creating
+  gitops: "my-gitops"
+
+# GitHub Configuration
+github:
+  # GitHub organization name (optional)
+  # Leave empty to create repositories in your personal account
+  # Provide organization name to create repositories in an organization
+  # Example: my-organization
+  org: "my-organization"

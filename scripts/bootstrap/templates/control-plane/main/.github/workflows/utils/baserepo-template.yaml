@@ -1,0 +1,9 @@
+apiVersion: scheduler.kalypso.io/v1alpha1
+kind: BaseRepo
+metadata:
+  name: $branch
+spec:
+  repo: https://github.com/$repo
+  branch: $branch
+  path: .
+  commit: $promoted_commit

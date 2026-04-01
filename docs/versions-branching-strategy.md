@@ -30,7 +30,7 @@ The following table gives the summary of the source branching layout for a singl
 |-|-|-|-|-|
 |Main (M)|Major timeline. Always contains a working and tested code from the last sprint.|Day 1 – Forever|Merged from Dev branch at the end of each sprint|On each release (e.g. v1.0.0, v1.1.0)|
 |Dev (D)|The development collaboration branch. The main driver of progress. Contains stable code only at the end of each sprint.|Day 1 – Forever|Merged from Feature branches. Merged to Main branch.|At the end of each sprint|
-|Feature (F)|A subbranch from Dev to implement a feature or to fix a bug |Created per user story/task/bug|Merged to Dev branch.|None|
+|Feature (F)|A subbranch from Dev to implement a feature or to fix a bug|Created per user story/task/bug|Merged to Dev branch.|None|
 |Release (R)|Supported released version. The code is always stable. No new features here.|Release Date – End of version support|Merged from HotFix branches|On each Hot Fix (e.g. v1.0.1, v1.1.1)|
 |HotFix (HF)|A subbranch from Release to fix a bug|Created per bug|Merged to Release branch|None|
 
@@ -46,10 +46,10 @@ In GitOps methodology any environment is represented declaratively by manifests 
 
 |Option|Example|Pros|Cons|
 |-|-|-|-|
-|1. Single manifest repo, different sets of branches (a branch per environment-version)|Repo: Manifests <br/> Branches:  (Dev, QA, Prod), (Dev/1.0.x, QA/1.0.x, Prod/1.0.x), (Dev/1.1.x, QA/1.1.x, Prod/1.1.x)| - Simple <br/> - Easy to maintain <br/> - Easy to configure CD for new versions| - The branches are not grouped <br/> - Single point of failure|
-|2. A manifest repo per version, a branch per environment|Repos: Current, 1.0.x, 1.1.x <br/> Branches: Dev, QA, Prod |Clean separation/visibility| - Overwhelming number of repos <br/> - Pain to create/destroy repos on every new release <br/> - Configuring CD for a new repo is more difficult|
-|3. A repo per environment, a branch per version.|Repos: Dev, QA, Prod <br/> Branches: Current, 1.0.x., 1.1.x| - Clean separation/visibility <br/> - Secure <br/> - Easy to configure CD for new versions|Overwhelming number of repos|
-|4. A repo for non-prod environments (Dev, Qa, UAT, ...) and a repo for Prod, a branch per version.|Repos: Non-Prod, Prod <br/> Branches: Current, 1.0.x., 1.1.x| - Clean separation/visibility <br/> - Secure <br/> - Easy to configure CD for new versions <br/> - Only two manifests repos||
+|1. Single manifest repo, different sets of branches (a branch per environment-version)|Repo: Manifests <br/> Branches: (Dev, QA, Prod), (Dev/1.0.x, QA/1.0.x, Prod/1.0.x), (Dev/1.1.x, QA/1.1.x, Prod/1.1.x)|- Simple <br/> - Easy to maintain <br/> - Easy to configure CD for new versions|- The branches are not grouped <br/> - Single point of failure|
+|2. A manifest repo per version, a branch per environment|Repos: Current, 1.0.x, 1.1.x <br/> Branches: Dev, QA, Prod|Clean separation/visibility|- Overwhelming number of repos <br/> - Pain to create/destroy repos on every new release <br/> - Configuring CD for a new repo is more difficult|
+|3. A repo per environment, a branch per version.|Repos: Dev, QA, Prod <br/> Branches: Current, 1.0.x., 1.1.x|- Clean separation/visibility <br/> - Secure <br/> - Easy to configure CD for new versions|Overwhelming number of repos|
+|4. A repo for non-prod environments (Dev, Qa, UAT, ...) and a repo for Prod, a branch per version.|Repos: Non-Prod, Prod <br/> Branches: Current, 1.0.x., 1.1.x|- Clean separation/visibility <br/> - Secure <br/> - Easy to configure CD for new versions <br/> - Only two manifests repos||
 
 The recommendation of this article is option #4, which is a reasonable combination of options #1 and #3 when all environments but Prod live in a single repo. This option has all the benefits of #1 and addresses the security/vulnerability concern by separation Prod environment. This approach follows the same philosophy as the target environment separation, for example, when all environments before prod live on the same K8s cluster, and the prod one is completely separated.
 

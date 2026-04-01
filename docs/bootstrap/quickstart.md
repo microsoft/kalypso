@@ -231,8 +231,8 @@ This will delete:
 ## Getting Help
 
 - **Documentation**: [README.md](README.md)
-- **Issues**: <https://github.com/microsoft/kalypso-scheduler/issues>
-- **Discussions**: <https://github.com/microsoft/kalypso-scheduler/discussions>
+- **Issues**: <https://github.com/microsoft/kalypso/issues>
+- **Discussions**: <https://github.com/microsoft/kalypso/discussions>
 
 ## Success Metrics
 

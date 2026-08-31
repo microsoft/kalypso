@@ -15,7 +15,7 @@ jobs:
       pull-requests: write    
     steps:
       - name: Checkout a Git repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
 
       - name: Run Markdown Lint
         id: markdownlint
@@ -42,7 +42,7 @@ jobs:
 
       - name: Report to PR as comment
         if: ${{ always() && steps.markdownlint.conclusion == 'failure' && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           script: |
             let fs = require('fs');
@@ -66,7 +66,7 @@ jobs:
 
       - name: Archive report
         if: ${{ always() && steps.markdownlint.conclusion == 'failure' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: markdownlint report
           path: markdown-report.txt
@@ -75,10 +75,10 @@ jobs:
     name: Markdown Link Checker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
 
       - name: Run Markdown Link Checker
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        uses: gaurav-nelson/github-action-markdown-link-check@5c5dfc0ac2e225883c0e5f03a85311ec2830d368 # v1
         with:
           config-file: '.markdownlinkcheck.json'
           # Quiet mode only shows errors in output not successful links too
@@ -91,19 +91,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
         with:
           fetch-depth: "0"
 
       - name: Run Gitleaks
         id: gitleaks
-        uses: DariuszPorowski/github-action-gitleaks@v2
+        uses: DariuszPorowski/github-action-gitleaks@a027585cb1f2780aa441f20f4d0aabf8b1a0d90e # v2.1.0
         with:
           report_format: sarif
           config: UDMSecretChecks.toml
 
       - name: Upload SARIF report to Workflow Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always() && steps.gitleaks.outputs.exitcode != 0
         with:
           name: gitleaks
@@ -112,7 +112,7 @@ jobs:
       
       - name: Upload SARIF report to Code Scanning service
         if: always() && steps.gitleaks.outputs.exitcode != 0
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@42947a340483f03ba47bb1a039b2c519aab3df85 # v3.37.8
         with:
           sarif_file: ${{ steps.gitleaks.outputs.report }}
           category: gitleaks
@@ -122,9 +122,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout a Git repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
         with:
           node-version: 20
           cache: 'npm'
